@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Christlicher Feiertagskalender – Alle Feste, Gedenktage und besonderen Tage im Kirchenjahr auf einen Blick.">
+<title>Christlicher Feiertagskalender</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--c-bg:#f8faff;--c-white:#fff;--c-text:#1e293b;--c-text2:#475569;--c-text3:#94a3b8;
+--c-border:#e2e8f0;--c-border2:#f1f5f9;
+--c-indigo:#4f46e5;--c-indigo-bg:#eef2ff;--c-indigo-light:#818cf8;
+--c-red:#ef4444;--c-green:#22c55e;--shadow:0 1px 3px rgba(0,0,0,.06);
+--radius:1rem;--radius-sm:.75rem;--radius-xs:.5rem;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#f8fafc,#eef2ff,#f0f0ff);color:var(--c-text);min-height:100vh;line-height:1.5}
+button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+/* CATEGORY COLORS */
+.cat-hochfest{--cat:#b45309;--cat-bg:#fffbeb;--cat-border:#fcd34d;--cat-dot:#f59e0b}
+.cat-fastenzeit{--cat:#7e22ce;--cat-bg:#faf5ff;--cat-border:#c084fc;--cat-dot:#a855f7}
+.cat-ostern{--cat:#a16207;--cat-bg:#fefce8;--cat-border:#fde047;--cat-dot:#eab308}
+.cat-pfingsten{--cat:#b91c1c;--cat-bg:#fef2f2;--cat-border:#fca5a5;--cat-dot:#ef4444}
+.cat-advent{--cat:#1d4ed8;--cat-bg:#eff6ff;--cat-border:#93c5fd;--cat-dot:#3b82f6}
+.cat-weihnachten{--cat:#15803d;--cat-bg:#f0fdf4;--cat-border:#86efac;--cat-dot:#22c55e}
+.cat-gedenktag{--cat:#475569;--cat-bg:#f8fafc;--cat-border:#cbd5e1;--cat-dot:#64748b}
+.cat-evangelisch{--cat:#0f766e;--cat-bg:#f0fdfa;--cat-border:#5eead4;--cat-dot:#14b8a6}
+.cat-marienfest{--cat:#0369a1;--cat-bg:#f0f9ff;--cat-border:#7dd3fc;--cat-dot:#0ea5e9}
+/* HEADER */
+.header{background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--c-border);position:sticky;top:0;z-index:50}
+.header-inner{max-width:1200px;margin:0 auto;padding:1rem 1.25rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem}
+.logo-wrap{display:flex;align-items:center;gap:.75rem}
+.logo{width:2.5rem;height:2.5rem;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:.75rem;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.25rem;box-shadow:0 4px 12px rgba(79,70,229,.3)}
+.header h1{font-size:1.2rem;font-weight:700}
+.header p{font-size:.7rem;color:var(--c-text3)}
+.header-controls{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+/* LANG TOGGLE */
+.lang-toggle{display:flex;background:#f1f5f9;border-radius:999px;padding:2px;border:1px solid var(--c-border)}
+.lang-btn{display:flex;align-items:center;gap:4px;padding:4px 12px;border-radius:999px;font-size:.75rem;font-weight:600;color:var(--c-text3);transition:.2s}
+.lang-btn.active{background:#fff;color:var(--c-text);box-shadow:var(--shadow)}
+/* VIEW TOGGLE */
+.view-btn{padding:6px 14px;border-radius:.5rem;font-size:.8rem;font-weight:500;color:var(--c-text3);transition:.2s}
+.view-btn.active{background:var(--c-indigo-bg);color:var(--c-indigo)}
+.view-btn:hover:not(.active){background:#f1f5f9}
+.divider{width:1px;height:1.5rem;background:var(--c-border)}
+/* CONTAINER */
+.container{max-width:1200px;margin:0 auto;padding:1.5rem 1.25rem}
+/* FILTER BAR */
+.filter-bar{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--c-border2);padding:1rem 1.25rem;margin-bottom:1.5rem}
+.filter-bar h3{font-size:.65rem;font-weight:700;color:var(--c-text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem}
+.filter-chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.filter-chip{display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:.72rem;font-weight:500;border:1px solid;transition:.2s}
+.filter-chip.active{box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.filter-chip.inactive{background:#f8fafc;color:#94a3b8;border-color:#e2e8f0;opacity:.5}
+.chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* LAYOUT */
+.month-layout{display:grid;grid-template-columns:1fr;gap:1.5rem}
+@media(min-width:1024px){.month-layout{grid-template-columns:2fr 1fr}}
+/* CALENDAR CARD */
+.cal-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--c-border2);overflow:hidden}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:1.25rem}
+.cal-nav h2{font-size:1.15rem;font-weight:700;text-align:center}
+.cal-nav .sub{font-size:.7rem;color:var(--c-text3);margin-top:2px}
+.nav-btn{width:2.5rem;height:2.5rem;border-radius:50%;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:.15s}
+.nav-btn:hover{background:#f1f5f9}
+.year-nav{display:flex;align-items:center;justify-content:center;gap:6px;padding:.5rem;border-bottom:1px solid var(--c-border2);background:#fafbfc}
+.year-nav button{padding:4px 10px;font-size:.7rem;color:var(--c-text3);transition:.15s;border-radius:.25rem}
+.year-nav button:hover{color:var(--c-text)}
+.year-nav .cur{padding:4px 14px;font-size:.7rem;font-weight:700;color:var(--c-indigo);background:var(--c-indigo-bg);border-radius:999px}
+/* CALENDAR GRID */
+.cal-grid{padding:1rem}
+.weekday-row{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:.5rem}
+.weekday-cell{text-align:center;font-size:.7rem;font-weight:600;color:var(--c-text3);padding:.5rem 0}
+.days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.day-cell{aspect-ratio:1;border-radius:.65rem;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.85rem;transition:.15s;position:relative}
+.day-cell:not(.empty):hover{background:#f8fafc}
+.day-cell.today{background:var(--c-indigo);color:#fff;font-weight:700;box-shadow:0 4px 12px rgba(79,70,229,.25);outline:2px solid var(--c-indigo-light);outline-offset:1px}
+.day-cell.selected:not(.today){background:var(--c-indigo-bg);outline:2px solid var(--c-indigo-light)}
+.day-cell.has-holiday{font-weight:600;cursor:pointer}
+.day-cell.sunday:not(.today):not(.selected){color:var(--c-red)}
+.day-dots{display:flex;gap:2px;margin-top:2px}
+.day-dot{width:5px;height:5px;border-radius:50%}
+.day-dot.on-today{background:rgba(255,255,255,.75)}
+/* TODAY BUTTON */
+.today-btn-wrap{margin-top:1rem;text-align:center}
+.today-btn{padding:8px 18px;background:#fff;border-radius:.75rem;box-shadow:var(--shadow);border:1px solid var(--c-border);font-size:.8rem;color:var(--c-text2);transition:.15s}
+.today-btn:hover{background:#f8fafc}
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:1.5rem}
+/* DETAIL CARD */
+.detail-card{border-radius:var(--radius);box-shadow:var(--shadow);border:2px solid;overflow:hidden;transition:.2s}
+.detail-head{padding:1.25rem}
+.detail-head-top{display:flex;align-items:flex-start;justify-content:space-between}
+.detail-emoji{font-size:2.5rem}
+.close-btn{width:1.75rem;height:1.75rem;border-radius:50%;background:rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;color:var(--c-text3);font-size:.75rem;transition:.15s}
+.close-btn:hover{background:rgba(255,255,255,.8);color:var(--c-text)}
+.detail-head h3{font-size:1.05rem;font-weight:700;margin-top:.75rem}
+.detail-head .date{font-size:.8rem;color:var(--c-text2);margin-top:4px}
+.detail-badge{display:inline-block;margin-top:.5rem;font-size:.68rem;padding:3px 12px;border-radius:999px;font-weight:500;border:1px solid}
+.detail-body{background:#fff;padding:1.25rem}
+.detail-body p{font-size:.85rem;color:var(--c-text2);line-height:1.65}
+.countdown{margin-top:1rem;padding:.75rem;border-radius:.75rem;font-size:.8rem;font-weight:500;text-align:center}
+.countdown.is-today{background:#f0fdf4;color:#15803d}
+.countdown.future{background:var(--c-indigo-bg);color:var(--c-indigo)}
+.countdown.past{background:#f8fafc;color:var(--c-text3)}
+/* LIST CARD */
+.list-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--c-border2);padding:1.25rem}
+.list-card h3{font-size:.8rem;font-weight:700;color:var(--c-text2);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+.list-card h3 span{font-size:1.05rem}
+.list-item{width:100%;text-align:left;display:flex;align-items:center;gap:.75rem;padding:.6rem;border-radius:.75rem;transition:.15s;border:1px solid transparent}
+.list-item:hover{background:#f8fafc}
+.list-item.active{box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.list-item-emoji{font-size:1.1rem;width:1.75rem;text-align:center;flex-shrink:0}
+.list-item-info{flex:1;min-width:0}
+.list-item-name{font-size:.8rem;font-weight:500;color:var(--c-text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-item-date{font-size:.68rem;color:var(--c-text3)}
+.list-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.list-item-badge{flex-shrink:0;font-size:.6rem;padding:2px 8px;border-radius:999px;font-weight:500}
+.empty-state{text-align:center;padding:2rem 0}
+.empty-state .icon{font-size:2rem;margin-bottom:.5rem}
+.empty-state p{font-size:.8rem;color:var(--c-text3)}
+.empty-state .sub{font-size:.7rem;color:#cbd5e1;margin-top:4px}
+/* INFO BOX */
+.info-box{background:linear-gradient(135deg,#eef2ff,#faf5ff);border-radius:var(--radius);border:1px solid #c7d2fe;padding:1.25rem}
+.info-box h3{font-size:.8rem;font-weight:700;color:#4338ca;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.info-box p{font-size:.72rem;color:rgba(67,56,202,.6);line-height:1.6}
+.info-box .easter-info{margin-top:.75rem;display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:#6366f1}
+.info-box .easter-info strong{font-weight:700}
+/* YEAR VIEW */
+.year-header{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem}
+.year-header h2{font-size:1.5rem;font-weight:700}
+.year-grid{display:grid;grid-template-columns:repeat(1,1fr);gap:1rem;margin-bottom:2rem}
+@media(min-width:640px){.year-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:768px){.year-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1024px){.year-grid{grid-template-columns:repeat(4,1fr)}}
+.mini-month{background:#fff;border-radius:.75rem;box-shadow:var(--shadow);border:1px solid var(--c-border2);padding:.75rem;cursor:pointer;transition:.2s}
+.mini-month:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.mini-month h4{font-size:.8rem;font-weight:700;color:var(--c-text2);text-align:center;margin-bottom:.5rem}
+.mini-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.mini-wd{font-size:.5rem;color:var(--c-text3);text-align:center;font-weight:500}
+.mini-day{height:1.25rem;display:flex;align-items:center;justify-content:center;font-size:.6rem;border-radius:2px;position:relative}
+.mini-day.m-today{background:var(--c-indigo);color:#fff;font-weight:700;border-radius:3px}
+.mini-day.m-holiday{font-weight:700}
+.mini-day-dot{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%}
+/* ALL HOLIDAYS LIST */
+.all-holidays{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--c-border2);padding:1.5rem}
+.all-holidays h3{font-size:1.05rem;font-weight:700;margin-bottom:1rem}
+.all-holidays h3 span{font-size:.8rem;font-weight:400;color:var(--c-text3);margin-left:.5rem}
+.all-list{max-height:600px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem}
+/* MODAL OVERLAY */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:.2s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:#fff;border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.15);max-width:28rem;width:100%;overflow:hidden;border:2px solid;transform:scale(.95);transition:.2s}
+.modal-overlay.open .modal{transform:scale(1)}
+.modal-head{padding:1.5rem}
+.modal-head .top{display:flex;align-items:flex-start;justify-content:space-between}
+.modal-head .emoji{font-size:3rem}
+.modal-close{width:2rem;height:2rem;border-radius:50%;background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;color:var(--c-text3);transition:.15s}
+.modal-close:hover{background:rgba(255,255,255,.9);color:var(--c-text)}
+.modal-head h3{font-size:1.2rem;font-weight:700;margin-top:1rem}
+.modal-head .date{font-size:.85rem;color:var(--c-text2);margin-top:4px}
+.modal-head .badge{display:inline-block;margin-top:.75rem;font-size:.7rem;padding:4px 14px;border-radius:999px;font-weight:500;border:1px solid}
+.modal-body{padding:1.5rem}
+.modal-body p{font-size:.9rem;color:var(--c-text2);line-height:1.7}
+/* FOOTER */
+.footer{margin-top:3rem;padding:1.5rem;border-top:1px solid var(--c-border);background:rgba(255,255,255,.5);text-align:center}
+.footer p{font-size:.72rem;color:var(--c-text3)}
+/* RESPONSIVE */
+@media(max-width:640px){
+.header-inner{flex-direction:column;align-items:flex-start}
+.header-controls{width:100%;justify-content:flex-start}
+.cal-nav h2{font-size:1rem}
+.day-cell{font-size:.75rem}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal" style="border-color:#e2e8f0">
+    <div class="modal-head" id="modal-head">
+      <div class="top">
+        <span class="emoji" id="modal-emoji"></span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <h3 id="modal-title"></h3>
+      <div class="date" id="modal-date"></div>
+      <span class="badge" id="modal-badge"></span>
+    </div>
+    <div class="modal-body">
+      <p id="modal-desc"></p>
+      <div class="countdown" id="modal-countdown"></div>
+    </div>
+  </div>
+</div>
+<script>
+// =============================================
+// STATE
+// =============================================
+const today = new Date();
+today.setHours(0,0,0,0);
+let lang = 'de';
+let currentYear = today.getFullYear();
+let currentMonth = today.getMonth();
+let selectedHoliday = null;
+let view = 'month';
+let activeCategories = new Set([
+  'hochfest','fastenzeit','ostern','pfingsten','advent','weihnachten','gedenktag','evangelisch','marienfest'
+]);
+// =============================================
+// TRANSLATIONS
+// =============================================
+const T = {
+  de: {
+    monthNames:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
+    weekdayShort:['Mo','Di','Mi','Do','Fr','Sa','So'],
+    catLabels:{hochfest:'Hochfest',fastenzeit:'Fastenzeit',ostern:'Ostern',pfingsten:'Pfingsten',advent:'Advent',weihnachten:'Weihnachten',gedenktag:'Gedenktag',evangelisch:'Evangelisch',marienfest:'Marienfest'},
+    ui:{
+      title:'Christlicher Feiertagskalender',
+      subtitle:'Feste, Gedenktage & besondere Tage im Kirchenjahr',
+      month:'📅 Monat',year:'📊 Jahr',
+      filterCategories:'Kategorien filtern',
+      allHolidays:'Alle Feiertage',entries:'Einträge',
+      today:'Heute',todayBtn:'📍 Heute',
+      nextHolidays:'Nächste Feiertage',
+      noMoreHolidays:'Keine weiteren Feiertage in diesem Jahr',
+      noHolidaysMonth:'Keine Feiertage in diesem Monat',
+      withActiveFilters:'(mit aktiven Filtern)',
+      aboutTitle:'Über den Kalender',
+      aboutText:'Dieser Kalender zeigt die wichtigsten christlichen Feiertage und Gedenktage. Bewegliche Feiertage wie Ostern werden automatisch berechnet. Enthält sowohl katholische als auch evangelische Feiertage.',
+      easter:'Ostern',holiday:'Feiertag',holidays:'Feiertage',
+      daysLeft:'Noch',day:'Tag',days:'Tage',
+      footerPrefix:'Christlicher Feiertagskalender · Kirchenjahr',
+      footerSuffix:'· Bewegliche Feiertage basierend auf dem Osterdatum'
+    }
+  },
+  en: {
+    monthNames:['January','February','March','April','May','June','July','August','September','October','November','December'],
+    weekdayShort:['Mo','Tu','We','Th','Fr','Sa','Su'],
+    catLabels:{hochfest:'Solemnity',fastenzeit:'Lent',ostern:'Easter',pfingsten:'Pentecost',advent:'Advent',weihnachten:'Christmas',gedenktag:'Memorial Day',evangelisch:'Protestant',marienfest:'Marian Feast'},
+    ui:{
+      title:'Christian Holiday Calendar',
+      subtitle:'Feasts, memorial days & special days in the liturgical year',
+      month:'📅 Month',year:'📊 Year',
+      filterCategories:'Filter categories',
+      allHolidays:'All holidays',entries:'entries',
+      today:'Today',todayBtn:'📍 Today',
+      nextHolidays:'Upcoming holidays',
+      noMoreHolidays:'No more holidays this year',
+      noHolidaysMonth:'No holidays this month',
+      withActiveFilters:'(with active filters)',
+      aboutTitle:'About this calendar',
+      aboutText:'This calendar shows the most important Christian holidays and memorial days. Moveable feasts like Easter are automatically calculated. Includes both Catholic and Protestant holidays.',
+      easter:'Easter',holiday:'holiday',holidays:'holidays',
+      daysLeft:'In',day:'day',days:'days',
+      footerPrefix:'Christian Holiday Calendar · Liturgical Year',
+      footerSuffix:'· Moveable feasts based on the Easter date'
+    }
+  }
+};
+function t(){ return T[lang]; }
+// =============================================
+// CATEGORY STYLES
+// =============================================
+const CAT_STYLES = {
+  hochfest:{color:'#b45309',bg:'#fffbeb',border:'#fcd34d',dot:'#f59e0b'},
+  fastenzeit:{color:'#7e22ce',bg:'#faf5ff',border:'#c084fc',dot:'#a855f7'},
+  ostern:{color:'#a16207',bg:'#fefce8',border:'#fde047',dot:'#eab308'},
+  pfingsten:{color:'#b91c1c',bg:'#fef2f2',border:'#fca5a5',dot:'#ef4444'},
+  advent:{color:'#1d4ed8',bg:'#eff6ff',border:'#93c5fd',dot:'#3b82f6'},
+  weihnachten:{color:'#15803d',bg:'#f0fdf4',border:'#86efac',dot:'#22c55e'},
+  gedenktag:{color:'#475569',bg:'#f8fafc',border:'#cbd5e1',dot:'#64748b'},
+  evangelisch:{color:'#0f766e',bg:'#f0fdfa',border:'#5eead4',dot:'#14b8a6'},
+  marienfest:{color:'#0369a1',bg:'#f0f9ff',border:'#7dd3fc',dot:'#0ea5e9'}
+};
+// =============================================
+// DATE HELPERS
+// =============================================
+function calculateEaster(year){
+  const a=year%19,b=Math.floor(year/100),c=year%100,d=Math.floor(b/4),e=b%4;
+  const f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3);
+  const h=(19*a+b-d-g+15)%30,ii=Math.floor(c/4),k=c%4;
+  const l=(32+2*e+2*ii-h-k)%7,m=Math.floor((a+11*h+22*l)/451);
+  const month=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;
+  return new Date(year,month-1,day);
+}
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function getAdventSundays(year){
+  const c=new Date(year,11,25),dw=c.getDay(),a4=new Date(year,11,25-(dw===0?7:dw));
+  return[addDays(a4,-21),addDays(a4,-14),addDays(a4,-7),a4];
+}
+function getTotensonntag(y){return addDays(getAdventSundays(y)[0],-7);}
+function getBussUndBettag(y){return addDays(getTotensonntag(y),-4);}
+function getErntedankfest(y){const o=new Date(y,9,1),d=o.getDay();return new Date(y,9,1+(d===0?0:7-d));}
+function dateKey(d){return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();}
+function formatDate(d){
+  return d.toLocaleDateString(lang==='de'?'de-DE':'en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function formatShort(d){
+  return d.toLocaleDateString(lang==='de'?'de-DE':'en-US',{weekday:'short',day:'numeric',month:'short'});
+}
+function formatDayMonth(d){
+  return d.toLocaleDateString(lang==='de'?'de-DE':'en-US',{day:'numeric',month:'short'});
+}
+function formatTodayDate(d){
+  return d.toLocaleDateString(lang==='de'?'de-DE':'en-US',{day:'numeric',month:'short',year:'numeric'});
+}
+function getDaysUntil(d){const n=new Date();n.setHours(0,0,0,0);return Math.ceil((d.getTime()-n.getTime())/(864e5));}
+function isToday(day,month,year){return day===today.getDate()&&month===today.getMonth()&&year===today.getFullYear();}
+// =============================================
+// HOLIDAYS
+// =============================================
+function getHolidays(year){
+  const e=calculateEaster(year),adv=getAdventSundays(year),tot=getTotensonntag(year),bub=getBussUndBettag(year),edf=getErntedankfest(year);
+  const h=[
+    {date:new Date(year,0,1),name:{de:'Neujahr / Hochfest der Gottesmutter',en:"New Year / Solemnity of Mary, Mother of God"},desc:{de:'Hochfest der Gottesmutter Maria. Die Kirche feiert die besondere Rolle Marias als Mutter Gottes. Gleichzeitig Weltfriedenstag.',en:"Solemnity of Mary, Mother of God. The Church celebrates Mary's special role as the Mother of God. Also World Day of Peace."},cat:'marienfest',emoji:'🙏'},
+    {date:new Date(year,0,6),name:{de:'Heilige Drei Könige (Epiphanie)',en:"Epiphany (Three Kings' Day)"},desc:{de:'Fest der Erscheinung des Herrn. Die Weisen aus dem Morgenland huldigen dem neugeborenen Jesus mit Gold, Weihrauch und Myrrhe.',en:'Feast of the Apparition of the Lord. The Wise Men from the East pay homage to the newborn Jesus with gold, frankincense, and myrrh.'},cat:'weihnachten',emoji:'⭐'},
+    {date:new Date(year,1,2),name:{de:'Mariä Lichtmess',en:'Candlemas (Presentation of the Lord)'},desc:{de:'Darstellung des Herrn im Tempel. 40 Tage nach Weihnachten wird Jesus im Tempel vorgestellt.',en:'Presentation of the Lord in the Temple. 40 days after Christmas, Jesus is presented in the Temple.'},cat:'marienfest',emoji:'🕯️'},
+    {date:new Date(year,2,19),name:{de:'Fest des Heiligen Josef',en:'Feast of Saint Joseph'},desc:{de:'Gedenktag des heiligen Josef, des Nährvaters Jesu und Bräutigam Marias.',en:'Memorial day of Saint Joseph, foster father of Jesus and spouse of Mary.'},cat:'gedenktag',emoji:'🪚'},
+    {date:new Date(year,2,25),name:{de:'Verkündigung des Herrn',en:'Annunciation of the Lord'},desc:{de:'Der Erzengel Gabriel verkündet Maria, dass sie den Sohn Gottes empfangen wird.',en:'The Archangel Gabriel announces to Mary that she will conceive the Son of God.'},cat:'marienfest',emoji:'👼'},
+    {date:new Date(year,5,24),name:{de:'Geburt Johannes des Täufers',en:'Nativity of Saint John the Baptist'},desc:{de:'Hochfest der Geburt des Johannes des Täufers, der als Vorläufer und Wegbereiter Jesu gilt.',en:'Solemnity of the birth of John the Baptist, who is regarded as the forerunner and precursor of Jesus.'},cat:'hochfest',emoji:'🐚'},
+    {date:new Date(year,5,29),name:{de:'Peter und Paul',en:'Saints Peter and Paul'},desc:{de:'Hochfest der Apostel Petrus und Paulus.',en:'Solemnity of the Apostles Peter and Paul.'},cat:'hochfest',emoji:'🗝️'},
+    {date:new Date(year,7,6),name:{de:'Verklärung des Herrn',en:'Transfiguration of the Lord'},desc:{de:'Jesus zeigt sich den Jüngern auf dem Berg Tabor in göttlichem Licht.',en:'Jesus reveals himself to the disciples on Mount Tabor in divine light.'},cat:'hochfest',emoji:'✨'},
+    {date:new Date(year,7,15),name:{de:'Mariä Himmelfahrt',en:'Assumption of Mary'},desc:{de:'Aufnahme Marias in den Himmel. Eines der höchsten Marienfeste der katholischen Kirche.',en:'The assumption of Mary into heaven. One of the highest Marian feasts of the Catholic Church.'},cat:'marienfest',emoji:'☁️'},
+    {date:new Date(year,8,14),name:{de:'Kreuzerhöhung',en:'Exaltation of the Holy Cross'},desc:{de:'Fest zur Verehrung des Heiligen Kreuzes.',en:'Feast of the veneration of the Holy Cross.'},cat:'gedenktag',emoji:'✝️'},
+    {date:new Date(year,8,29),name:{de:'Erzengelfest (Michael, Gabriel, Raphael)',en:'Feast of the Archangels'},desc:{de:'Fest der drei Erzengel Michael, Gabriel und Raphael.',en:'Feast of the three Archangels Michael, Gabriel, and Raphael.'},cat:'gedenktag',emoji:'😇'},
+    {date:new Date(year,9,4),name:{de:'Fest des Heiligen Franziskus',en:'Feast of Saint Francis of Assisi'},desc:{de:'Gedenktag des heiligen Franz von Assisi, Gründer des Franziskanerordens.',en:'Memorial day of Saint Francis of Assisi, founder of the Franciscan Order.'},cat:'gedenktag',emoji:'🐦'},
+    {date:new Date(year,9,31),name:{de:'Reformationstag',en:'Reformation Day'},desc:{de:'Am 31. Oktober 1517 schlug Martin Luther seine 95 Thesen an die Schlosskirche zu Wittenberg.',en:'On October 31, 1517, Martin Luther posted his 95 Theses on the Castle Church in Wittenberg.'},cat:'evangelisch',emoji:'📜'},
+    {date:new Date(year,10,1),name:{de:'Allerheiligen',en:"All Saints' Day"},desc:{de:'Gedenktag aller Heiligen, auch der unbekannten.',en:'Memorial day of all saints, including the unknown ones.'},cat:'hochfest',emoji:'👑'},
+    {date:new Date(year,10,2),name:{de:'Allerseelen',en:"All Souls' Day"},desc:{de:'Gedenktag aller verstorbenen Gläubigen.',en:'Commemoration of all the faithful departed.'},cat:'gedenktag',emoji:'🕯️'},
+    {date:new Date(year,10,11),name:{de:'St. Martin',en:"Saint Martin's Day"},desc:{de:'Gedenktag des heiligen Martin von Tours. Er teilte seinen Mantel mit einem frierenden Bettler.',en:'Memorial day of Saint Martin of Tours. He shared his cloak with a freezing beggar.'},cat:'gedenktag',emoji:'🏮'},
+    {date:new Date(year,11,6),name:{de:'Nikolaustag',en:'Saint Nicholas Day'},desc:{de:'Gedenktag des heiligen Nikolaus von Myra, bekannt für seine Großzügigkeit.',en:'Memorial day of Saint Nicholas of Myra, known for his generosity.'},cat:'gedenktag',emoji:'🎅'},
+    {date:new Date(year,11,8),name:{de:'Mariä Empfängnis',en:'Immaculate Conception'},desc:{de:'Hochfest der ohne Erbsünde empfangenen Jungfrau Maria.',en:'Solemnity of the Immaculate Conception of the Blessed Virgin Mary.'},cat:'marienfest',emoji:'💙'},
+    {date:new Date(year,11,24),name:{de:'Heiligabend',en:'Christmas Eve'},desc:{de:'Vorabend von Weihnachten. Familien versammeln sich zur Bescherung.',en:'The evening before Christmas. Families gather for gift-giving.'},cat:'weihnachten',emoji:'🌟'},
+    {date:new Date(year,11,25),name:{de:'1. Weihnachtstag',en:'Christmas Day'},desc:{de:'Hochfest der Geburt Jesu Christi. Die Menschwerdung Gottes wird gefeiert.',en:'Solemnity of the Nativity of Jesus Christ.'},cat:'weihnachten',emoji:'🎄'},
+    {date:new Date(year,11,26),name:{de:'2. Weihnachtstag (Stephanstag)',en:"Saint Stephen's Day (Boxing Day)"},desc:{de:'Gedenktag des heiligen Stephanus, des ersten Märtyrers der Christenheit.',en:'Memorial day of Saint Stephen, the first martyr of Christianity.'},cat:'weihnachten',emoji:'🎁'},
+    {date:new Date(year,11,31),name:{de:'Silvester / Jahresschluss',en:"New Year's Eve"},desc:{de:'Letzter Tag des Jahres. Benannt nach Papst Silvester I.',en:'Last day of the year. Named after Pope Sylvester I.'},cat:'gedenktag',emoji:'🔔'},
+    // MOVEABLE
+    {date:addDays(e,-52),name:{de:'Sonntag Sexagesimae',en:'Sexagesima Sunday'},desc:{de:'Zweiter Sonntag vor der Fastenzeit.',en:'Second Sunday before Lent.'},cat:'fastenzeit',emoji:'📖'},
+    {date:addDays(e,-48),name:{de:'Weiberfastnacht',en:"Women's Carnival Thursday"},desc:{de:'Donnerstag vor Aschermittwoch, Beginn des Straßenkarnevals.',en:'Thursday before Ash Wednesday, start of street carnival.'},cat:'fastenzeit',emoji:'🎭'},
+    {date:addDays(e,-47),name:{de:'Karnevalsfreitag',en:'Carnival Friday'},desc:{de:'Freitag vor Aschermittwoch.',en:'Friday before Ash Wednesday.'},cat:'fastenzeit',emoji:'🎪'},
+    {date:addDays(e,-46),name:{de:'Aschermittwoch',en:'Ash Wednesday'},desc:{de:'Beginn der 40-tägigen Fastenzeit vor Ostern. „Bedenke Mensch, dass du Staub bist."',en:'Beginning of the 40-day Lenten season before Easter.'},cat:'fastenzeit',emoji:'✟'},
+    {date:addDays(e,-7),name:{de:'Palmsonntag',en:'Palm Sunday'},desc:{de:'Beginn der Karwoche. Jesus zieht in Jerusalem ein.',en:'Beginning of Holy Week. Jesus enters Jerusalem.'},cat:'ostern',emoji:'🌿'},
+    {date:addDays(e,-3),name:{de:'Gründonnerstag',en:'Maundy Thursday'},desc:{de:'Gedenken an das Letzte Abendmahl Jesu mit seinen Jüngern.',en:'Commemoration of the Last Supper of Jesus with his disciples.'},cat:'ostern',emoji:'🍷'},
+    {date:addDays(e,-2),name:{de:'Karfreitag',en:'Good Friday'},desc:{de:'Gedenken an die Kreuzigung und den Tod Jesu Christi. Tag der Stille.',en:'Commemoration of the crucifixion and death of Jesus Christ.'},cat:'ostern',emoji:'✝️'},
+    {date:addDays(e,-1),name:{de:'Karsamstag',en:'Holy Saturday'},desc:{de:'Tag der Grabesruhe Christi. Am Abend die Osternacht mit Osterfeuer.',en:"Day of Christ's rest in the tomb. Easter Vigil in the evening."},cat:'ostern',emoji:'🪨'},
+    {date:e,name:{de:'Ostersonntag',en:'Easter Sunday'},desc:{de:'Das höchste Fest der Christenheit! Feier der Auferstehung Jesu Christi.',en:'The highest feast of Christianity! Celebration of the Resurrection of Jesus Christ.'},cat:'ostern',emoji:'🐣'},
+    {date:addDays(e,1),name:{de:'Ostermontag',en:'Easter Monday'},desc:{de:'Zweiter Ostertag. Die Emmaus-Jünger erkennen den auferstandenen Christus.',en:'Second day of Easter. The disciples at Emmaus recognize the risen Christ.'},cat:'ostern',emoji:'🌷'},
+    {date:addDays(e,39),name:{de:'Christi Himmelfahrt',en:'Ascension of Christ'},desc:{de:'Jesus Christus fährt 40 Tage nach Ostern in den Himmel auf.',en:'Jesus Christ ascends to heaven 40 days after Easter.'},cat:'hochfest',emoji:'☁️'},
+    {date:addDays(e,49),name:{de:'Pfingstsonntag',en:'Pentecost Sunday'},desc:{de:'Ausgießung des Heiligen Geistes. Geburtsstunde der Kirche.',en:'Outpouring of the Holy Spirit. Birthday of the Church.'},cat:'pfingsten',emoji:'🔥'},
+    {date:addDays(e,50),name:{de:'Pfingstmontag',en:'Whit Monday'},desc:{de:'Zweiter Pfingsttag. Die Gemeinde feiert das Wirken des Heiligen Geistes.',en:'Second day of Pentecost.'},cat:'pfingsten',emoji:'🕊️'},
+    {date:addDays(e,56),name:{de:'Dreifaltigkeitssonntag (Trinitatis)',en:'Trinity Sunday'},desc:{de:'Fest der Heiligen Dreifaltigkeit: Gott als Vater, Sohn und Heiliger Geist.',en:'Feast of the Holy Trinity: God as Father, Son, and Holy Spirit.'},cat:'hochfest',emoji:'🔺'},
+    {date:addDays(e,60),name:{de:'Fronleichnam',en:'Corpus Christi'},desc:{de:'Hochfest des Leibes und Blutes Christi. Feierliche Prozessionen.',en:'Solemnity of the Body and Blood of Christ.'},cat:'hochfest',emoji:'☀️'},
+    {date:addDays(e,68),name:{de:'Herz-Jesu-Fest',en:'Feast of the Sacred Heart'},desc:{de:'Verehrung des heiligsten Herzens Jesu. Symbol der göttlichen Liebe.',en:'Veneration of the Most Sacred Heart of Jesus.'},cat:'hochfest',emoji:'❤️'},
+    // ADVENT
+    {date:adv[0],name:{de:'1. Advent',en:'First Sunday of Advent'},desc:{de:'Beginn des Kirchenjahres. Die erste Kerze am Adventskranz wird entzündet.',en:'Beginning of the liturgical year. The first candle on the Advent wreath is lit.'},cat:'advent',emoji:'🕯️'},
+    {date:adv[1],name:{de:'2. Advent',en:'Second Sunday of Advent'},desc:{de:'Die zweite Kerze am Adventskranz wird entzündet.',en:'The second candle on the Advent wreath is lit.'},cat:'advent',emoji:'🕯️'},
+    {date:adv[2],name:{de:'3. Advent (Gaudete)',en:'Third Sunday of Advent (Gaudete)'},desc:{de:'Freudensonntag – „Gaudete" (Freuet euch!).',en:'Sunday of Joy – "Gaudete" (Rejoice!).'},cat:'advent',emoji:'🕯️'},
+    {date:adv[3],name:{de:'4. Advent',en:'Fourth Sunday of Advent'},desc:{de:'Die vierte und letzte Kerze wird entzündet. Weihnachten steht bevor.',en:'The fourth and last candle is lit. Christmas is imminent.'},cat:'advent',emoji:'🕯️'},
+    // SONDERTAGE
+    {date:edf,name:{de:'Erntedankfest',en:'Harvest Thanksgiving'},desc:{de:'Dank an Gott für die Ernte und die Gaben der Natur.',en:'Thanksgiving to God for the harvest and the gifts of nature.'},cat:'gedenktag',emoji:'🌾'},
+    {date:bub,name:{de:'Buß- und Bettag',en:'Day of Repentance and Prayer'},desc:{de:'Evangelischer Feiertag. Tag der Besinnung, Buße und des Gebets.',en:'Protestant holiday. A day of reflection, repentance, and prayer.'},cat:'evangelisch',emoji:'🙏'},
+    {date:tot,name:{de:'Totensonntag (Ewigkeitssonntag)',en:'Sunday of the Dead (Eternity Sunday)'},desc:{de:'Evangelischer Gedenktag für die Verstorbenen. Letzter Sonntag des Kirchenjahres.',en:'Protestant memorial day for the deceased. Last Sunday of the liturgical year.'},cat:'evangelisch',emoji:'🕊️'}
+  ];
+  return h.sort((a,b)=>a.date.getTime()-b.date.getTime());
+}
+// =============================================
+// CALENDAR HELPERS
+// =============================================
+function getCalendarDays(year,month){
+  const fd=new Date(year,month,1),ld=new Date(year,month+1,0);
+  let sd=fd.getDay()-1;if(sd<0)sd=6;
+  const days=[];
+  for(let i=0;i<sd;i++)days.push(null);
+  for(let i=1;i<=ld.getDate();i++)days.push(i);
+  while(days.length%7!==0)days.push(null);
+  return days;
+}
+function buildHolidayMap(holidays){
+  const m=new Map();
+  holidays.forEach(h=>{const k=dateKey(h.date);if(!m.has(k))m.set(k,[]);m.get(k).push(h);});
+  return m;
+}
+// =============================================
+// RENDER COUNTDOWN
+// =============================================
+function countdownHTML(diff){
+  const u=t().ui;
+  if(diff===0) return `<div class="countdown is-today">🎉 ${u.today}!</div>`;
+  if(diff>0) return `<div class="countdown future">⏳ ${u.daysLeft} <strong>${diff}</strong> ${diff!==1?u.days:u.day}</div>`;
+  const a=Math.abs(diff);
+  if(lang==='de') return `<div class="countdown past">Vor ${a} ${a!==1?'Tagen':'Tag'}</div>`;
+  return `<div class="countdown past">${a} ${a!==1?'days ago':'day ago'}</div>`;
+}
+function upcomingLabel(diff){
+  const u=t().ui;
+  if(diff===0) return u.today;
+  if(lang==='de') return `in ${diff} ${diff!==1?'Tagen':'Tag'}`;
+  return `in ${diff} ${diff!==1?'days':'day'}`;
+}
+// =============================================
+// ESCAPE HTML
+// =============================================
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+// =============================================
+// MODAL
+// =============================================
+function showModal(holiday){
+  const cs=CAT_STYLES[holiday.cat];
+  const el=document.getElementById('modal');
+  el.style.borderColor=cs.border;
+  document.getElementById('modal-head').style.background=cs.bg;
+  document.getElementById('modal-emoji').textContent=holiday.emoji;
+  document.getElementById('modal-title').textContent=holiday.name[lang];
+  document.getElementById('modal-date').textContent=formatDate(holiday.date);
+  const badge=document.getElementById('modal-badge');
+  badge.textContent=t().catLabels[holiday.cat];
+  badge.style.background=cs.bg;badge.style.color=cs.color;badge.style.borderColor=cs.border;
+  document.getElementById('modal-desc').textContent=holiday.desc[lang];
+  document.getElementById('modal-countdown').outerHTML=countdownHTML(getDaysUntil(holiday.date));
+  // Re-add id for next time
+  const cdEl=document.querySelector('.modal-body .countdown');
+  if(cdEl)cdEl.id='modal-countdown';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+document.getElementById('modal-overlay').addEventListener('click',function(ev){
+  if(ev.target===this)closeModal();
+});
+// =============================================
+// MAIN RENDER
+// =============================================
+function render(){
+  const holidays=getHolidays(currentYear);
+  const hmap=buildHolidayMap(holidays);
+  const u=t().ui;
+  const mn=t().monthNames;
+  const wd=t().weekdayShort;
+  const cl=t().catLabels;
+  let html='';
+  // HEADER
+  html+=`<header class="header"><div class="header-inner">
+    <div class="logo-wrap">
+      <div class="logo">✝</div>
+      <div><h1>${esc(u.title)}</h1><p>${esc(u.subtitle)}</p></div>
+    </div>
+    <div class="header-controls">
+      <div class="lang-toggle">
+        <button class="lang-btn ${lang==='de'?'active':''}" onclick="setLang('de')"><span>🇩🇪</span> DE</button>
+        <button class="lang-btn ${lang==='en'?'active':''}" onclick="setLang('en')"><span>🇬🇧</span> EN</button>
+      </div>
+      <div class="divider"></div>
+      <button class="view-btn ${view==='month'?'active':''}" onclick="setView('month')">${esc(u.month)}</button>
+      <button class="view-btn ${view==='year'?'active':''}" onclick="setView('year')">${esc(u.year)}</button>
+    </div>
+  </div></header>`;
+  html+='<div class="container">';
+  // FILTER BAR
+  html+=`<div class="filter-bar"><h3>${esc(u.filterCategories)}</h3><div class="filter-chips">`;
+  Object.keys(CAT_STYLES).forEach(cat=>{
+    const cs=CAT_STYLES[cat];
+    const active=activeCategories.has(cat);
+    if(active){
+      html+=`<button class="filter-chip active" onclick="toggleCat('${cat}')" style="background:${cs.bg};color:${cs.color};border-color:${cs.border}"><span class="chip-dot" style="background:${cs.dot}"></span>${esc(cl[cat])}</button>`;
+    }else{
+      html+=`<button class="filter-chip inactive" onclick="toggleCat('${cat}')"><span class="chip-dot" style="background:#cbd5e1"></span>${esc(cl[cat])}</button>`;
+    }
+  });
+  html+='</div></div>';
+  if(view==='year'){
+    html+=renderYearView(holidays,hmap,u,mn,wd,cl);
+  }else{
+    html+=renderMonthView(holidays,hmap,u,mn,wd,cl);
+  }
+  html+='</div>'; // container
+  // FOOTER
+  html+=`<footer class="footer"><p>✝️ ${esc(u.footerPrefix)} ${currentYear} ${esc(u.footerSuffix)}</p></footer>`;
+  document.getElementById('app').innerHTML=html;
+}
+// =============================================
+// MONTH VIEW
+// =============================================
+function renderMonthView(holidays,hmap,u,mn,wd,cl){
+  const monthHolidays=holidays.filter(h=>h.date.getMonth()===currentMonth&&activeCategories.has(h.cat));
+  const calDays=getCalendarDays(currentYear,currentMonth);
+  let html='<div class="month-layout">';
+  // LEFT - CALENDAR
+  html+='<div>';
+  html+='<div class="cal-card">';
+  // NAV
+  html+=`<div class="cal-nav">
+    <button class="nav-btn" onclick="prevMonth()">‹</button>
+    <div style="text-align:center">
+      <h2>${mn[currentMonth]} ${currentYear}</h2>
+      <div class="sub">${monthHolidays.length} ${monthHolidays.length!==1?u.holidays:u.holiday}</div>
+    </div>
+    <button class="nav-btn" onclick="nextMonth()">›</button>
+  </div>`;
+  // YEAR QUICK NAV
+  html+=`<div class="year-nav">
+    <button onclick="changeYear(${currentYear-1})">« ${currentYear-1}</button>
+    <span class="cur">${currentYear}</span>
+    <button onclick="changeYear(${currentYear+1})">${currentYear+1} »</button>
+  </div>`;
+  // GRID
+  html+='<div class="cal-grid"><div class="weekday-row">';
+  wd.forEach(d=>{html+=`<div class="weekday-cell">${d}</div>`;});
+  html+='</div><div class="days-grid">';
+  calDays.forEach((day,i)=>{
+    if(day===null){html+='<div class="day-cell empty"></div>';return;}
+    const key=dateKey(new Date(currentYear,currentMonth,day));
+    const dh=(hmap.get(key)||[]).filter(h=>activeCategories.has(h.cat));
+    const hasH=dh.length>0;
+    const td=isToday(day,currentMonth,currentYear);
+    const isSel=selectedHoliday&&selectedHoliday.date.getDate()===day&&selectedHoliday.date.getMonth()===currentMonth;
+    const isSun=(i+1)%7===0;
+    let cls='day-cell';
+    if(td)cls+=' today';
+    if(isSel&&!td)cls+=' selected';
+    if(hasH)cls+=' has-holiday';
+    if(isSun&&!td&&!isSel)cls+=' sunday';
+    const onclick=hasH?`onclick="selectHoliday(${holidays.indexOf(dh[0])})"`:''
+    html+=`<button class="${cls}" ${onclick}><span>${day}</span>`;
+    if(hasH){
+      html+='<div class="day-dots">';
+      dh.slice(0,3).forEach(h=>{
+        const dotColor=td?'rgba(255,255,255,.75)':CAT_STYLES[h.cat].dot;
+        html+=`<span class="day-dot" style="background:${dotColor}"></span>`;
+      });
+      html+='</div>';
+    }
+    html+='</button>';
+  });
+  html+='</div></div>'; // days-grid, cal-grid
+  html+='</div>'; // cal-card
+  // TODAY BUTTON
+  html+=`<div class="today-btn-wrap"><button class="today-btn" onclick="goToday()">${u.todayBtn} (${formatTodayDate(today)})</button></div>`;
+  html+='</div>'; // left
+  // RIGHT - SIDEBAR
+  html+='<div class="sidebar">';
+  // SELECTED HOLIDAY DETAIL
+  if(selectedHoliday){
+    const cs=CAT_STYLES[selectedHoliday.cat];
+    const diff=getDaysUntil(selectedHoliday.date);
+    html+=`<div class="detail-card" style="border-color:${cs.border}">
+      <div class="detail-head" style="background:${cs.bg}">
+        <div class="detail-head-top">
+          <span class="detail-emoji">${selectedHoliday.emoji}</span>
+          <button class="close-btn" onclick="deselectHoliday()">✕</button>
+        </div>
+        <h3>${esc(selectedHoliday.name[lang])}</h3>
+        <div class="date">${formatDate(selectedHoliday.date)}</div>
+        <span class="detail-badge" style="background:${cs.bg};color:${cs.color};border-color:${cs.border}">${esc(cl[selectedHoliday.cat])}</span>
+      </div>
+      <div class="detail-body">
+        <p>${esc(selectedHoliday.desc[lang])}</p>
+        ${countdownHTML(diff)}
+      </div>
+    </div>`;
+  }
+  // UPCOMING HOLIDAYS
+  if(currentYear===today.getFullYear()){
+    const upcoming=holidays.filter(h=>h.date>=today&&activeCategories.has(h.cat)).slice(0,5);
+    html+=`<div class="list-card"><h3><span>📋</span> ${esc(u.nextHolidays)}</h3>`;
+    if(upcoming.length>0){
+      html+='<div>';
+      upcoming.forEach(h=>{
+        const diff=getDaysUntil(h.date);
+        const idx=holidays.indexOf(h);
+        html+=`<button class="list-item" onclick="selectAndGo(${idx})">
+          <span class="list-item-emoji">${h.emoji}</span>
+          <div class="list-item-info">
+            <div class="list-item-name">${esc(h.name[lang])}</div>
+            <div class="list-item-date">${formatDayMonth(h.date)} · ${upcomingLabel(diff)}</div>
+          </div>
+          <span class="list-item-dot" style="background:${CAT_STYLES[h.cat].dot}"></span>
+        </button>`;
+      });
+      html+='</div>';
+    }else{
+      html+=`<div class="empty-state"><p>${esc(u.noMoreHolidays)}</p></div>`;
+    }
+    html+='</div>';
+  }
+  // MONTH HOLIDAY LIST
+  html+=`<div class="list-card"><h3><span>📌</span> ${esc(mn[currentMonth])}</h3>`;
+  if(monthHolidays.length>0){
+    html+='<div>';
+    monthHolidays.forEach(h=>{
+      const cs=CAT_STYLES[h.cat];
+      const idx=holidays.indexOf(h);
+      const isSel=selectedHoliday===h;
+      html+=`<button class="list-item${isSel?' active':''}" onclick="selectHoliday(${idx})" style="${isSel?`background:${cs.bg};border-color:${cs.border}`:''}">`
+      html+=`<span class="list-item-emoji">${h.emoji}</span>
+        <div class="list-item-info">
+          <div class="list-item-name">${esc(h.name[lang])}</div>
+          <div class="list-item-date">${formatShort(h.date)}</div>
+        </div>
+        <span class="list-item-dot" style="background:${cs.dot}"></span>
+      </button>`;
+    });
+    html+='</div>';
+  }else{
+    html+=`<div class="empty-state"><div class="icon">📭</div><p>${esc(u.noHolidaysMonth)}</p><div class="sub">${esc(u.withActiveFilters)}</div></div>`;
+  }
+  html+='</div>';
+  // INFO BOX
+  const easterDate=holidays.find(h=>h.name.de==='Ostersonntag');
+  const easterStr=easterDate?easterDate.date.toLocaleDateString(lang==='de'?'de-DE':'en-US',{day:'numeric',month:'long'}):'';
+  html+=`<div class="info-box">
+    <h3>ℹ️ ${esc(u.aboutTitle)}</h3>
+    <p>${esc(u.aboutText)}</p>
+    <div class="easter-info"><span>🥚</span><span>${esc(u.easter)} ${currentYear}: <strong>${easterStr}</strong></span></div>
+  </div>`;
+  html+='</div>'; // sidebar
+  html+='</div>'; // month-layout
+  return html;
+}
+// =============================================
+// YEAR VIEW
+// =============================================
+function renderYearView(holidays,hmap,u,mn,wd,cl){
+  let html='';
+  // YEAR HEADER
+  html+=`<div class="year-header">
+    <button class="nav-btn" onclick="changeYear(${currentYear-1})">‹</button>
+    <h2>${currentYear}</h2>
+    <button class="nav-btn" onclick="changeYear(${currentYear+1})">›</button>
+  </div>`;
+  // MINI MONTHS
+  html+='<div class="year-grid">';
+  for(let m=0;m<12;m++){
+    const days=getCalendarDays(currentYear,m);
+    html+=`<div class="mini-month" onclick="goToMonth(${m})">
+      <h4>${mn[m]}</h4><div class="mini-grid">`;
+    wd.forEach(d=>{html+=`<div class="mini-wd">${d}</div>`;});
+    days.forEach(day=>{
+      if(day===null){html+='<div class="mini-day"></div>';return;}
+      const key=dateKey(new Date(currentYear,m,day));
+      const dh=(hmap.get(key)||[]).filter(h=>activeCategories.has(h.cat));
+      const hasH=dh.length>0;
+      const td=isToday(day,m,currentYear);
+      let cls='mini-day';
+      if(td)cls+=' m-today';
+      if(hasH&&!td)cls+=' m-holiday';
+      html+=`<div class="${cls}">`;
+      if(hasH&&!td){
+        html+=`<span style="color:${CAT_STYLES[dh[0].cat].color}">${day}</span>`;
+        html+=`<span class="mini-day-dot" style="background:${CAT_STYLES[dh[0].cat].dot}"></span>`;
+      }else{
+        html+=day;
+      }
+      html+='</div>';
+    });
+    html+='</div></div>';
+  }
+  html+='</div>';
+  // ALL HOLIDAYS LIST
+  const filtered=holidays.filter(h=>activeCategories.has(h.cat));
+  html+=`<div class="all-holidays">
+    <h3>${esc(u.allHolidays)} ${currentYear}<span>(${filtered.length} ${u.entries})</span></h3>
+    <div class="all-list">`;
+  filtered.forEach((h,i)=>{
+    const cs=CAT_STYLES[h.cat];
+    const idx=holidays.indexOf(h);
+    html+=`<button class="list-item" onclick="showYearModal(${idx})">
+      <span class="list-item-emoji">${h.emoji}</span>
+      <div class="list-item-info">
+        <div class="list-item-name">${esc(h.name[lang])}</div>
+        <div class="list-item-date">${formatShort(h.date)}</div>
+      </div>
+      <span class="list-item-badge" style="background:${cs.bg};color:${cs.color}">${esc(cl[h.cat])}</span>
+    </button>`;
+  });
+  html+='</div></div>';
+  return html;
+}
+// =============================================
+// ACTIONS
+// =============================================
+let cachedHolidays=null;
+function getCachedHolidays(){
+  if(!cachedHolidays||cachedHolidays._year!==currentYear){
+    cachedHolidays=getHolidays(currentYear);
+    cachedHolidays._year=currentYear;
+  }
+  return cachedHolidays;
+}
+function setLang(l){lang=l;document.documentElement.lang=l;render();}
+function setView(v){view=v;selectedHoliday=null;render();}
+function toggleCat(c){
+  if(activeCategories.has(c))activeCategories.delete(c);
+  else activeCategories.add(c);
+  render();
+}
+function prevMonth(){
+  if(currentMonth===0){currentMonth=11;currentYear--;}else{currentMonth--;}
+  selectedHoliday=null;cachedHolidays=null;render();
+}
+function nextMonth(){
+  if(currentMonth===11){currentMonth=0;currentYear++;}else{currentMonth++;}
+  selectedHoliday=null;cachedHolidays=null;render();
+}
+function changeYear(y){currentYear=y;selectedHoliday=null;cachedHolidays=null;render();}
+function goToday(){
+  currentYear=today.getFullYear();currentMonth=today.getMonth();
+  selectedHoliday=null;cachedHolidays=null;render();
+}
+function goToMonth(m){currentMonth=m;view='month';selectedHoliday=null;render();}
+function selectHoliday(idx){
+  const holidays=getHolidays(currentYear);
+  selectedHoliday=holidays[idx];render();
+}
+function deselectHoliday(){selectedHoliday=null;render();}
+function selectAndGo(idx){
+  const holidays=getHolidays(currentYear);
+  selectedHoliday=holidays[idx];
+  currentMonth=selectedHoliday.date.getMonth();
+  render();
+}
+function showYearModal(idx){
+  const holidays=getHolidays(currentYear);
+  showModal(holidays[idx]);
+}
+// INITIAL RENDER
+render();
+</script>
+</body>
+</html>
