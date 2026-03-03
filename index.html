@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Christlicher Feiertagskalender – Alle Feste, Gedenktage und besonderen Tage im Kirchenjahr auf einen Blick.">
+<meta name="description" content="Christlicher Feiertagskalender – Alle Feste, Gedenktage und besonderen Tage im Kirchenjahr auf einen Blick. Inklusive orthodoxer Feiertage.">
 <title>Christlicher Feiertagskalender</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -27,6 +27,7 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 .cat-gedenktag{--cat:#475569;--cat-bg:#f8fafc;--cat-border:#cbd5e1;--cat-dot:#64748b}
 .cat-evangelisch{--cat:#0f766e;--cat-bg:#f0fdfa;--cat-border:#5eead4;--cat-dot:#14b8a6}
 .cat-marienfest{--cat:#0369a1;--cat-bg:#f0f9ff;--cat-border:#7dd3fc;--cat-dot:#0ea5e9}
+.cat-orthodox{--cat:#92400e;--cat-bg:#fffbeb;--cat-border:#d97706;--cat-dot:#b45309}
 /* HEADER */
 .header{background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--c-border);position:sticky;top:0;z-index:50}
 .header-inner{max-width:1200px;margin:0 auto;padding:1rem 1.25rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem}
@@ -127,6 +128,7 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 .info-box p{font-size:.72rem;color:rgba(67,56,202,.6);line-height:1.6}
 .info-box .easter-info{margin-top:.75rem;display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:#6366f1}
 .info-box .easter-info strong{font-weight:700}
+.easter-row{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.75rem}
 /* YEAR VIEW */
 .year-header{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem}
 .year-header h2{font-size:1.5rem;font-weight:700}
@@ -207,7 +209,7 @@ let currentMonth = today.getMonth();
 let selectedHoliday = null;
 let view = 'month';
 let activeCategories = new Set([
-  'hochfest','fastenzeit','ostern','pfingsten','advent','weihnachten','gedenktag','evangelisch','marienfest'
+  'hochfest','fastenzeit','ostern','pfingsten','advent','weihnachten','gedenktag','evangelisch','marienfest','orthodox'
 ]);
 // =============================================
 // TRANSLATIONS
@@ -216,7 +218,7 @@ const T = {
   de: {
     monthNames:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
     weekdayShort:['Mo','Di','Mi','Do','Fr','Sa','So'],
-    catLabels:{hochfest:'Hochfest',fastenzeit:'Fastenzeit',ostern:'Ostern',pfingsten:'Pfingsten',advent:'Advent',weihnachten:'Weihnachten',gedenktag:'Gedenktag',evangelisch:'Evangelisch',marienfest:'Marienfest'},
+    catLabels:{hochfest:'Hochfest',fastenzeit:'Fastenzeit',ostern:'Ostern',pfingsten:'Pfingsten',advent:'Advent',weihnachten:'Weihnachten',gedenktag:'Gedenktag',evangelisch:'Evangelisch',marienfest:'Marienfest',orthodox:'Orthodox'},
     ui:{
       title:'Christlicher Feiertagskalender',
       subtitle:'Feste, Gedenktage & besondere Tage im Kirchenjahr',
@@ -229,17 +231,17 @@ const T = {
       noHolidaysMonth:'Keine Feiertage in diesem Monat',
       withActiveFilters:'(mit aktiven Filtern)',
       aboutTitle:'Über den Kalender',
-      aboutText:'Dieser Kalender zeigt die wichtigsten christlichen Feiertage und Gedenktage. Bewegliche Feiertage wie Ostern werden automatisch berechnet. Enthält sowohl katholische als auch evangelische Feiertage.',
-      easter:'Ostern',holiday:'Feiertag',holidays:'Feiertage',
+      aboutText:'Dieser Kalender zeigt die wichtigsten christlichen Feiertage und Gedenktage – sowohl westlich (katholisch/evangelisch) als auch orthodox. Bewegliche Feiertage werden automatisch berechnet. Orthodoxe Feiertage folgen dem Julianischen Kalender (+13 Tage).',
+      easter:'Ostern (West)',orthodoxEaster:'Ostern (Orthodox)',holiday:'Feiertag',holidays:'Feiertage',
       daysLeft:'Noch',day:'Tag',days:'Tage',
       footerPrefix:'Christlicher Feiertagskalender · Kirchenjahr',
-      footerSuffix:'· Bewegliche Feiertage basierend auf dem Osterdatum'
+      footerSuffix:'· Westliche & orthodoxe Feiertage'
     }
   },
   en: {
     monthNames:['January','February','March','April','May','June','July','August','September','October','November','December'],
     weekdayShort:['Mo','Tu','We','Th','Fr','Sa','Su'],
-    catLabels:{hochfest:'Solemnity',fastenzeit:'Lent',ostern:'Easter',pfingsten:'Pentecost',advent:'Advent',weihnachten:'Christmas',gedenktag:'Memorial Day',evangelisch:'Protestant',marienfest:'Marian Feast'},
+    catLabels:{hochfest:'Solemnity',fastenzeit:'Lent',ostern:'Easter',pfingsten:'Pentecost',advent:'Advent',weihnachten:'Christmas',gedenktag:'Memorial Day',evangelisch:'Protestant',marienfest:'Marian Feast',orthodox:'Orthodox'},
     ui:{
       title:'Christian Holiday Calendar',
       subtitle:'Feasts, memorial days & special days in the liturgical year',
@@ -252,11 +254,11 @@ const T = {
       noHolidaysMonth:'No holidays this month',
       withActiveFilters:'(with active filters)',
       aboutTitle:'About this calendar',
-      aboutText:'This calendar shows the most important Christian holidays and memorial days. Moveable feasts like Easter are automatically calculated. Includes both Catholic and Protestant holidays.',
-      easter:'Easter',holiday:'holiday',holidays:'holidays',
+      aboutText:'This calendar shows the most important Christian holidays and memorial days – both Western (Catholic/Protestant) and Orthodox. Moveable feasts are automatically calculated. Orthodox holidays follow the Julian calendar (+13 days).',
+      easter:'Easter (Western)',orthodoxEaster:'Easter (Orthodox)',holiday:'holiday',holidays:'holidays',
       daysLeft:'In',day:'day',days:'days',
       footerPrefix:'Christian Holiday Calendar · Liturgical Year',
-      footerSuffix:'· Moveable feasts based on the Easter date'
+      footerSuffix:'· Western & Orthodox holidays'
     }
   }
 };
@@ -273,7 +275,8 @@ const CAT_STYLES = {
   weihnachten:{color:'#15803d',bg:'#f0fdf4',border:'#86efac',dot:'#22c55e'},
   gedenktag:{color:'#475569',bg:'#f8fafc',border:'#cbd5e1',dot:'#64748b'},
   evangelisch:{color:'#0f766e',bg:'#f0fdfa',border:'#5eead4',dot:'#14b8a6'},
-  marienfest:{color:'#0369a1',bg:'#f0f9ff',border:'#7dd3fc',dot:'#0ea5e9'}
+  marienfest:{color:'#0369a1',bg:'#f0f9ff',border:'#7dd3fc',dot:'#0ea5e9'},
+  orthodox:{color:'#92400e',bg:'#fef3c7',border:'#d97706',dot:'#b45309'}
 };
 // =============================================
 // DATE HELPERS
@@ -285,6 +288,20 @@ function calculateEaster(year){
   const l=(32+2*e+2*ii-h-k)%7,m=Math.floor((a+11*h+22*l)/451);
   const month=Math.floor((h+l-7*m+114)/31),day=((h+l-7*m+114)%31)+1;
   return new Date(year,month-1,day);
+}
+// Orthodox Easter: Julian calendar computation, then convert to Gregorian
+function calculateOrthodoxEaster(year){
+  const a=year%4;
+  const b=year%7;
+  const c=year%19;
+  const d=(19*c+15)%30;
+  const e=(2*a+4*b-d+34)%7;
+  const month=Math.floor((d+e+114)/31); // Julian month (3=March, 4=April)
+  const day=((d+e+114)%31)+1; // Julian day
+  // Convert Julian to Gregorian: add century offset
+  // For 1900–2099: +13 days; for 2100–2199: +14 days
+  const centuryOffset = Math.floor(year/100) - Math.floor(year/400) - 2;
+  return new Date(year, month-1, day + centuryOffset);
 }
 function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
 function getAdventSundays(year){
@@ -313,8 +330,17 @@ function isToday(day,month,year){return day===today.getDate()&&month===today.get
 // HOLIDAYS
 // =============================================
 function getHolidays(year){
-  const e=calculateEaster(year),adv=getAdventSundays(year),tot=getTotensonntag(year),bub=getBussUndBettag(year),edf=getErntedankfest(year);
+  const e=calculateEaster(year);
+  const oe=calculateOrthodoxEaster(year);
+  const adv=getAdventSundays(year);
+  const tot=getTotensonntag(year);
+  const bub=getBussUndBettag(year);
+  const edf=getErntedankfest(year);
+  // Julian-to-Gregorian offset for fixed orthodox dates
+  const jOff = Math.floor(year/100) - Math.floor(year/400) - 2; // 13 for 2000-2099
   const h=[
+    // ==================== WESTERN HOLIDAYS ====================
+    // FIXED
     {date:new Date(year,0,1),name:{de:'Neujahr / Hochfest der Gottesmutter',en:"New Year / Solemnity of Mary, Mother of God"},desc:{de:'Hochfest der Gottesmutter Maria. Die Kirche feiert die besondere Rolle Marias als Mutter Gottes. Gleichzeitig Weltfriedenstag.',en:"Solemnity of Mary, Mother of God. The Church celebrates Mary's special role as the Mother of God. Also World Day of Peace."},cat:'marienfest',emoji:'🙏'},
     {date:new Date(year,0,6),name:{de:'Heilige Drei Könige (Epiphanie)',en:"Epiphany (Three Kings' Day)"},desc:{de:'Fest der Erscheinung des Herrn. Die Weisen aus dem Morgenland huldigen dem neugeborenen Jesus mit Gold, Weihrauch und Myrrhe.',en:'Feast of the Apparition of the Lord. The Wise Men from the East pay homage to the newborn Jesus with gold, frankincense, and myrrh.'},cat:'weihnachten',emoji:'⭐'},
     {date:new Date(year,1,2),name:{de:'Mariä Lichtmess',en:'Candlemas (Presentation of the Lord)'},desc:{de:'Darstellung des Herrn im Tempel. 40 Tage nach Weihnachten wird Jesus im Tempel vorgestellt.',en:'Presentation of the Lord in the Temple. 40 days after Christmas, Jesus is presented in the Temple.'},cat:'marienfest',emoji:'🕯️'},
@@ -337,7 +363,7 @@ function getHolidays(year){
     {date:new Date(year,11,25),name:{de:'1. Weihnachtstag',en:'Christmas Day'},desc:{de:'Hochfest der Geburt Jesu Christi. Die Menschwerdung Gottes wird gefeiert.',en:'Solemnity of the Nativity of Jesus Christ.'},cat:'weihnachten',emoji:'🎄'},
     {date:new Date(year,11,26),name:{de:'2. Weihnachtstag (Stephanstag)',en:"Saint Stephen's Day (Boxing Day)"},desc:{de:'Gedenktag des heiligen Stephanus, des ersten Märtyrers der Christenheit.',en:'Memorial day of Saint Stephen, the first martyr of Christianity.'},cat:'weihnachten',emoji:'🎁'},
     {date:new Date(year,11,31),name:{de:'Silvester / Jahresschluss',en:"New Year's Eve"},desc:{de:'Letzter Tag des Jahres. Benannt nach Papst Silvester I.',en:'Last day of the year. Named after Pope Sylvester I.'},cat:'gedenktag',emoji:'🔔'},
-    // MOVEABLE
+    // WESTERN MOVEABLE
     {date:addDays(e,-52),name:{de:'Sonntag Sexagesimae',en:'Sexagesima Sunday'},desc:{de:'Zweiter Sonntag vor der Fastenzeit.',en:'Second Sunday before Lent.'},cat:'fastenzeit',emoji:'📖'},
     {date:addDays(e,-48),name:{de:'Weiberfastnacht',en:"Women's Carnival Thursday"},desc:{de:'Donnerstag vor Aschermittwoch, Beginn des Straßenkarnevals.',en:'Thursday before Ash Wednesday, start of street carnival.'},cat:'fastenzeit',emoji:'🎭'},
     {date:addDays(e,-47),name:{de:'Karnevalsfreitag',en:'Carnival Friday'},desc:{de:'Freitag vor Aschermittwoch.',en:'Friday before Ash Wednesday.'},cat:'fastenzeit',emoji:'🎪'},
@@ -362,7 +388,66 @@ function getHolidays(year){
     // SONDERTAGE
     {date:edf,name:{de:'Erntedankfest',en:'Harvest Thanksgiving'},desc:{de:'Dank an Gott für die Ernte und die Gaben der Natur.',en:'Thanksgiving to God for the harvest and the gifts of nature.'},cat:'gedenktag',emoji:'🌾'},
     {date:bub,name:{de:'Buß- und Bettag',en:'Day of Repentance and Prayer'},desc:{de:'Evangelischer Feiertag. Tag der Besinnung, Buße und des Gebets.',en:'Protestant holiday. A day of reflection, repentance, and prayer.'},cat:'evangelisch',emoji:'🙏'},
-    {date:tot,name:{de:'Totensonntag (Ewigkeitssonntag)',en:'Sunday of the Dead (Eternity Sunday)'},desc:{de:'Evangelischer Gedenktag für die Verstorbenen. Letzter Sonntag des Kirchenjahres.',en:'Protestant memorial day for the deceased. Last Sunday of the liturgical year.'},cat:'evangelisch',emoji:'🕊️'}
+    {date:tot,name:{de:'Totensonntag (Ewigkeitssonntag)',en:'Sunday of the Dead (Eternity Sunday)'},desc:{de:'Evangelischer Gedenktag für die Verstorbenen. Letzter Sonntag des Kirchenjahres.',en:'Protestant memorial day for the deceased. Last Sunday of the liturgical year.'},cat:'evangelisch',emoji:'🕊️'},
+    // ==================== ORTHODOX HOLIDAYS ====================
+    // FIXED ORTHODOX (Julian dates converted to Gregorian with +jOff offset)
+    // Orthodox Christmas: Dec 25 Julian = Jan 7 Gregorian (for 2000-2099)
+    {date:new Date(year,0,7),name:{de:'Orthodoxes Weihnachten (Geburt Christi)',en:'Orthodox Christmas (Nativity of Christ)'},desc:{de:'Die orthodoxe Kirche feiert die Geburt Jesu Christi nach dem julianischen Kalender am 7. Januar. Feierliche Gottesdienste mit Vigilien und dem Weihnachtsstern.',en:'The Orthodox Church celebrates the Nativity of Jesus Christ according to the Julian calendar on January 7. Solemn divine services with vigils and the Christmas star.'},cat:'orthodox',emoji:'⭐'},
+    // Synaxis of the Theotokos: Dec 26 Julian = Jan 8 Gregorian
+    {date:new Date(year,0,8),name:{de:'Synaxis der Gottesmutter (Orthodox)',en:'Synaxis of the Theotokos (Orthodox)'},desc:{de:'Am Tag nach Weihnachten ehrt die orthodoxe Kirche die Gottesmutter Maria in einer besonderen Versammlung.',en:'On the day after Christmas, the Orthodox Church honors the Mother of God Mary in a special gathering.'},cat:'orthodox',emoji:'👑'},
+    // Orthodox New Year: Jan 1 Julian = Jan 14 Gregorian
+    {date:new Date(year,0,14),name:{de:'Orthodoxes Neujahr (Altes Neujahr)',en:'Orthodox New Year (Old New Year)'},desc:{de:'Neujahrstag nach dem julianischen Kalender, auch „Altes Neujahr" genannt. Fest der Beschneidung des Herrn und des Hl. Basilius.',en:'New Year\'s Day according to the Julian calendar, also called "Old New Year." Feast of the Circumcision of the Lord and St. Basil.'},cat:'orthodox',emoji:'🎆'},
+    // Theophany / Epiphany: Jan 6 Julian = Jan 19 Gregorian
+    {date:new Date(year,0,19),name:{de:'Theophanie – Taufe des Herrn (Orthodox)',en:'Theophany – Baptism of the Lord (Orthodox)'},desc:{de:'Eines der wichtigsten orthodoxen Feste. Gedenken an die Taufe Jesu im Jordan durch Johannes den Täufer. Große Wasserweihe.',en:'One of the most important Orthodox feasts. Commemoration of the Baptism of Jesus in the Jordan by John the Baptist. Great Blessing of Waters.'},cat:'orthodox',emoji:'💧'},
+    // Presentation of the Lord: Feb 2 Julian = Feb 15 Gregorian
+    {date:new Date(year,1,15),name:{de:'Darstellung des Herrn im Tempel (Orthodox)',en:'Presentation of the Lord (Orthodox)'},desc:{de:'40 Tage nach der orthodoxen Geburt Christi. Der greise Simeon erkennt in Jesus den verheißenen Messias. „Begegnung des Herrn" (Hypapante).',en:'40 days after the Orthodox Nativity. The elder Simeon recognizes Jesus as the promised Messiah. Meeting of the Lord (Hypapante).'},cat:'orthodox',emoji:'🕯️'},
+    // Orthodoxe Verkündigung: Mar 25 Julian = Apr 7 Gregorian
+    {date:new Date(year,3,7),name:{de:'Verkündigung an die Gottesmutter (Orthodox)',en:'Annunciation to the Theotokos (Orthodox)'},desc:{de:'Der Erzengel Gabriel verkündet der Jungfrau Maria die Empfängnis des Sohnes Gottes. Eines der zwölf Hauptfeste der Orthodoxie.',en:'The Archangel Gabriel announces to the Virgin Mary the conception of the Son of God. One of the Twelve Great Feasts of Orthodoxy.'},cat:'orthodox',emoji:'👼'},
+    // Nativity of John the Baptist: Jun 24 Julian = Jul 7 Gregorian
+    {date:new Date(year,6,7),name:{de:'Geburt Johannes des Täufers (Orthodox)',en:'Nativity of St. John the Baptist (Orthodox)'},desc:{de:'Gedenken an die Geburt des Propheten und Vorläufers Johannes des Täufers nach dem julianischen Kalender.',en:'Commemoration of the birth of the Prophet and Forerunner John the Baptist according to the Julian calendar.'},cat:'orthodox',emoji:'🐚'},
+    // Sts. Peter and Paul: Jun 29 Julian = Jul 12 Gregorian
+    {date:new Date(year,6,12),name:{de:'Peter und Paul (Orthodox)',en:'Sts. Peter and Paul (Orthodox)'},desc:{de:'Fest der Apostelfürsten Petrus und Paulus. Ende der Apostelfastenzeit in der orthodoxen Kirche.',en:'Feast of the chief Apostles Peter and Paul. End of the Apostles\' Fast in the Orthodox Church.'},cat:'orthodox',emoji:'🗝️'},
+    // Transfiguration: Aug 6 Julian = Aug 19 Gregorian
+    {date:new Date(year,7,19),name:{de:'Verklärung des Herrn (Orthodox)',en:'Transfiguration of the Lord (Orthodox)'},desc:{de:'Jesus offenbart seine göttliche Herrlichkeit auf dem Berg Tabor vor den Aposteln Petrus, Jakobus und Johannes. Segnung der Früchte.',en:'Jesus reveals his divine glory on Mount Tabor before the Apostles Peter, James, and John. Blessing of the fruits.'},cat:'orthodox',emoji:'✨'},
+    // Dormition of the Theotokos: Aug 15 Julian = Aug 28 Gregorian
+    {date:new Date(year,7,28),name:{de:'Entschlafung der Gottesmutter (Orthodox)',en:'Dormition of the Theotokos (Orthodox)'},desc:{de:'Eines der höchsten Feste der Orthodoxie. Gedenken an das Entschlafen und die Aufnahme der Gottesmutter Maria in den Himmel. Nach 14-tägiger Fastenzeit.',en:'One of the highest feasts of Orthodoxy. Commemoration of the falling asleep and assumption of the Mother of God into heaven. After a 14-day fast.'},cat:'orthodox',emoji:'🌹'},
+    // Beheading of John the Baptist: Aug 29 Julian = Sep 11 Gregorian
+    {date:new Date(year,8,11),name:{de:'Enthauptung Johannes des Täufers (Orthodox)',en:'Beheading of St. John the Baptist (Orthodox)'},desc:{de:'Gedenken an das Martyrium des Propheten Johannes des Täufers. Strenger Fastentag in der orthodoxen Kirche.',en:'Commemoration of the martyrdom of the Prophet John the Baptist. Strict fast day in the Orthodox Church.'},cat:'orthodox',emoji:'⚔️'},
+    // Nativity of the Theotokos: Sep 8 Julian = Sep 21 Gregorian
+    {date:new Date(year,8,21),name:{de:'Geburt der Gottesmutter (Orthodox)',en:'Nativity of the Theotokos (Orthodox)'},desc:{de:'Fest der Geburt der allheiligen Gottesgebärerin. Beginn des orthodoxen Kirchenjahres (ab 1. September julianisch).',en:'Feast of the Birth of the Most Holy Mother of God. Beginning of the Orthodox liturgical year (from September 1 Julian).'},cat:'orthodox',emoji:'🌸'},
+    // Exaltation of the Cross: Sep 14 Julian = Sep 27 Gregorian
+    {date:new Date(year,8,27),name:{de:'Kreuzerhöhung (Orthodox)',en:'Exaltation of the Holy Cross (Orthodox)'},desc:{de:'Fest der Auffindung und Erhöhung des heiligen Kreuzes durch Kaiserin Helena im Jahr 326. Strenger Fastentag.',en:'Feast of the Finding and Elevation of the Holy Cross by Empress Helena in 326 AD. Strict fast day.'},cat:'orthodox',emoji:'✝️'},
+    // Protection of the Theotokos (Pokrov): Oct 1 Julian = Oct 14 Gregorian
+    {date:new Date(year,9,14),name:{de:'Schutz der Gottesmutter (Pokrow)',en:'Protection of the Theotokos (Pokrov)'},desc:{de:'Gedenken an die Erscheinung der Gottesmutter in der Blachernen-Kirche in Konstantinopel, wo sie ihren Schleier schützend über das Volk ausbreitete.',en:'Commemoration of the apparition of the Mother of God in the Blachernae Church in Constantinople, where she spread her veil protectively over the people.'},cat:'orthodox',emoji:'🛡️'},
+    // Entry of the Theotokos: Nov 21 Julian = Dec 4 Gregorian
+    {date:new Date(year,11,4),name:{de:'Tempelgang der Gottesmutter (Orthodox)',en:'Entry of the Theotokos into the Temple (Orthodox)'},desc:{de:'Gedenken an die Einführung der dreijährigen Maria in den Jerusalemer Tempel. Beginn der Weihnachtsfastenzeit (Philippusfasten).',en:'Commemoration of the presentation of the three-year-old Mary in the Jerusalem Temple. Beginning of the Nativity Fast (Philip\'s Fast).'},cat:'orthodox',emoji:'🏛️'},
+    // ORTHODOX MOVEABLE (based on Orthodox Easter / Pascha)
+    // Triumph of Orthodoxy: 1st Sunday of Great Lent (Pascha - 42)
+    {date:addDays(oe,-42),name:{de:'Triumph der Orthodoxie',en:'Triumph of Orthodoxy'},desc:{de:'Erster Sonntag der Großen Fastenzeit. Gedenken an die Wiederherstellung der Ikonenverehrung im Jahr 843. Feierliche Prozession mit Ikonen.',en:'First Sunday of Great Lent. Commemoration of the restoration of icon veneration in 843 AD. Solemn procession with icons.'},cat:'orthodox',emoji:'🖼️'},
+    // Beginning of Great Lent (Clean Monday): Pascha - 48
+    {date:addDays(oe,-48),name:{de:'Reiner Montag (Beginn Große Fastenzeit)',en:'Clean Monday (Beginning of Great Lent)'},desc:{de:'Beginn der 40-tägigen Großen Fastenzeit vor dem orthodoxen Osterfest. Tag der inneren Reinigung und des strengen Fastens.',en:'Beginning of the 40-day Great Lent before Orthodox Easter. Day of inner purification and strict fasting.'},cat:'orthodox',emoji:'🧹'},
+    // Orthodox Palm Sunday: Pascha - 7
+    {date:addDays(oe,-7),name:{de:'Orthodoxer Palmsonntag (Einzug in Jerusalem)',en:'Orthodox Palm Sunday (Entry into Jerusalem)'},desc:{de:'Feier des Einzugs Jesu in Jerusalem. Die Gläubigen tragen Palmzweige und Weidenkätzchen. Eines der zwölf Hauptfeste.',en:'Celebration of Jesus\' entry into Jerusalem. The faithful carry palm branches and pussy willows. One of the Twelve Great Feasts.'},cat:'orthodox',emoji:'🌿'},
+    // Orthodox Great (Holy) Friday: Pascha - 2
+    {date:addDays(oe,-2),name:{de:'Orthodoxer Karfreitag (Großer Freitag)',en:'Orthodox Great Friday (Holy Friday)'},desc:{de:'Gedenken an die Kreuzigung Christi. Abendgottesdienst mit der Grablegung (Epitaphios). Strengster Fastentag des Jahres.',en:'Commemoration of the Crucifixion of Christ. Evening service with the burial (Epitaphios). Strictest fast day of the year.'},cat:'orthodox',emoji:'☦️'},
+    // Orthodox Great Saturday: Pascha - 1
+    {date:addDays(oe,-1),name:{de:'Orthodoxer Karsamstag (Großer Samstag)',en:'Orthodox Great Saturday (Holy Saturday)'},desc:{de:'Tag der Grabesruhe Christi. Die Kirche gedenkt des Abstiegs Christi in die Unterwelt (Höllenfahrt) zur Befreiung der Gerechten.',en:'Day of Christ\'s rest in the tomb. The Church commemorates Christ\'s descent into Hades (Harrowing of Hell) to free the righteous.'},cat:'orthodox',emoji:'🪨'},
+    // Orthodox Pascha (Easter): oe
+    {date:oe,name:{de:'Orthodoxes Ostern (Pascha)',en:'Orthodox Easter (Pascha)'},desc:{de:'Das „Fest der Feste" – die Auferstehung Christi! Mitternächtliche Prozession mit dem Heiligen Licht, Ostergrüße „Christus ist auferstanden!" – „Er ist wahrhaft auferstanden!" Traditionelle Speisen: rote Eier, Kulitsch, Pascha.',en:'The "Feast of Feasts" – the Resurrection of Christ! Midnight procession with the Holy Light, Easter greetings "Christ is risen!" – "Truly He is risen!" Traditional foods: red eggs, kulich, paskha.'},cat:'orthodox',emoji:'☦️'},
+    // Orthodox Bright Monday: Pascha + 1
+    {date:addDays(oe,1),name:{de:'Orthodoxer Ostermontag (Lichter Montag)',en:'Orthodox Easter Monday (Bright Monday)'},desc:{de:'Erster Tag der „Lichten Woche" nach dem Pascha-Fest. Die Freude über die Auferstehung dauert die ganze Woche an. Keine Fastenvorschriften.',en:'First day of "Bright Week" after the Pascha feast. The joy of the Resurrection lasts the entire week. No fasting rules.'},cat:'orthodox',emoji:'🌷'},
+    // Radonitsa (Commemoration of the Dead): Pascha + 9
+    {date:addDays(oe,9),name:{de:'Radoniza (Totengedenken)',en:'Radonitsa (Commemoration of the Departed)'},desc:{de:'Orthodoxer Gedenktag für die Verstorbenen am Dienstag nach der Lichten Woche. Gläubige besuchen die Gräber und teilen die Osterfreude mit den Entschlafenen.',en:'Orthodox commemoration day for the departed on Tuesday after Bright Week. Faithful visit graves and share the Easter joy with the departed.'},cat:'orthodox',emoji:'🪦'},
+    // Mid-Pentecost: Pascha + 25
+    {date:addDays(oe,25),name:{de:'Mittfest (Halbpfingsten)',en:'Mid-Pentecost'},desc:{de:'Mitte zwischen Ostern und Pfingsten. Jesus lehrt im Tempel und spricht vom „lebendigen Wasser" des Heiligen Geistes.',en:'Midpoint between Easter and Pentecost. Jesus teaches in the Temple and speaks of the "living water" of the Holy Spirit.'},cat:'orthodox',emoji:'💦'},
+    // Orthodox Ascension: Pascha + 39
+    {date:addDays(oe,39),name:{de:'Orthodoxe Christi Himmelfahrt',en:'Orthodox Ascension of Christ'},desc:{de:'40 Tage nach dem Pascha-Fest fährt Christus in den Himmel auf und sendet die Verheißung des Heiligen Geistes. Eines der zwölf Hauptfeste.',en:'40 days after Pascha, Christ ascends to heaven and sends the promise of the Holy Spirit. One of the Twelve Great Feasts.'},cat:'orthodox',emoji:'☁️'},
+    // Orthodox Pentecost: Pascha + 49
+    {date:addDays(oe,49),name:{de:'Orthodoxes Pfingsten (Tag der Hl. Dreifaltigkeit)',en:'Orthodox Pentecost (Trinity Sunday)'},desc:{de:'Ausgießung des Heiligen Geistes über die Apostel. In der orthodoxen Tradition zugleich das Fest der Heiligen Dreifaltigkeit. Kniende Gebete am Abend.',en:'Outpouring of the Holy Spirit upon the Apostles. In Orthodox tradition also the Feast of the Holy Trinity. Kneeling prayers in the evening.'},cat:'orthodox',emoji:'🔥'},
+    // Day of the Holy Spirit: Pascha + 50
+    {date:addDays(oe,50),name:{de:'Tag des Heiligen Geistes (Orthodox)',en:'Day of the Holy Spirit (Orthodox)'},desc:{de:'Der Montag nach Pfingsten ist in der orthodoxen Kirche dem Heiligen Geist gewidmet. Besondere Verehrung der dritten Person der Dreifaltigkeit.',en:'The Monday after Pentecost is dedicated to the Holy Spirit in the Orthodox Church. Special veneration of the third Person of the Trinity.'},cat:'orthodox',emoji:'🕊️'},
+    // All Saints (Orthodox): Pascha + 56
+    {date:addDays(oe,56),name:{de:'Allerheiligen (Orthodox)',en:'All Saints Sunday (Orthodox)'},desc:{de:'Sonntag aller Heiligen in der orthodoxen Kirche. Beginn der Apostelfastenzeit (Petrusfasten), die bis zum Fest Peter und Paul dauert.',en:'Sunday of All Saints in the Orthodox Church. Beginning of the Apostles\' Fast (Peter\'s Fast), lasting until the Feast of Sts. Peter and Paul.'},cat:'orthodox',emoji:'👑'}
   ];
   return h.sort((a,b)=>a.date.getTime()-b.date.getTime());
 }
@@ -388,17 +473,17 @@ function buildHolidayMap(holidays){
 // =============================================
 function countdownHTML(diff){
   const u=t().ui;
-  if(diff===0) return `<div class="countdown is-today">🎉 ${u.today}!</div>`;
-  if(diff>0) return `<div class="countdown future">⏳ ${u.daysLeft} <strong>${diff}</strong> ${diff!==1?u.days:u.day}</div>`;
+  if(diff===0) return '<div class="countdown is-today">🎉 '+u.today+'!</div>';
+  if(diff>0) return '<div class="countdown future">⏳ '+u.daysLeft+' <strong>'+diff+'</strong> '+(diff!==1?u.days:u.day)+'</div>';
   const a=Math.abs(diff);
-  if(lang==='de') return `<div class="countdown past">Vor ${a} ${a!==1?'Tagen':'Tag'}</div>`;
-  return `<div class="countdown past">${a} ${a!==1?'days ago':'day ago'}</div>`;
+  if(lang==='de') return '<div class="countdown past">Vor '+a+' '+(a!==1?'Tagen':'Tag')+'</div>';
+  return '<div class="countdown past">'+a+' '+(a!==1?'days ago':'day ago')+'</div>';
 }
 function upcomingLabel(diff){
   const u=t().ui;
   if(diff===0) return u.today;
-  if(lang==='de') return `in ${diff} ${diff!==1?'Tagen':'Tag'}`;
-  return `in ${diff} ${diff!==1?'days':'day'}`;
+  if(lang==='de') return 'in '+diff+' '+(diff!==1?'Tagen':'Tag');
+  return 'in '+diff+' '+(diff!==1?'days':'day');
 }
 // =============================================
 // ESCAPE HTML
@@ -420,7 +505,6 @@ function showModal(holiday){
   badge.style.background=cs.bg;badge.style.color=cs.color;badge.style.borderColor=cs.border;
   document.getElementById('modal-desc').textContent=holiday.desc[lang];
   document.getElementById('modal-countdown').outerHTML=countdownHTML(getDaysUntil(holiday.date));
-  // Re-add id for next time
   const cdEl=document.querySelector('.modal-body .countdown');
   if(cdEl)cdEl.id='modal-countdown';
   document.getElementById('modal-overlay').classList.add('open');
@@ -441,31 +525,31 @@ function render(){
   const cl=t().catLabels;
   let html='';
   // HEADER
-  html+=`<header class="header"><div class="header-inner">
-    <div class="logo-wrap">
-      <div class="logo">✝</div>
-      <div><h1>${esc(u.title)}</h1><p>${esc(u.subtitle)}</p></div>
-    </div>
-    <div class="header-controls">
-      <div class="lang-toggle">
-        <button class="lang-btn ${lang==='de'?'active':''}" onclick="setLang('de')"><span>🇩🇪</span> DE</button>
-        <button class="lang-btn ${lang==='en'?'active':''}" onclick="setLang('en')"><span>🇬🇧</span> EN</button>
-      </div>
-      <div class="divider"></div>
-      <button class="view-btn ${view==='month'?'active':''}" onclick="setView('month')">${esc(u.month)}</button>
-      <button class="view-btn ${view==='year'?'active':''}" onclick="setView('year')">${esc(u.year)}</button>
-    </div>
-  </div></header>`;
+  html+='<header class="header"><div class="header-inner">';
+  html+='<div class="logo-wrap">';
+  html+='<div class="logo">✝</div>';
+  html+='<div><h1>'+esc(u.title)+'</h1><p>'+esc(u.subtitle)+'</p></div>';
+  html+='</div>';
+  html+='<div class="header-controls">';
+  html+='<div class="lang-toggle">';
+  html+='<button class="lang-btn '+(lang==='de'?'active':'')+'" onclick="setLang(\'de\')"><span>🇩🇪</span> DE</button>';
+  html+='<button class="lang-btn '+(lang==='en'?'active':'')+'" onclick="setLang(\'en\')"><span>🇬🇧</span> EN</button>';
+  html+='</div>';
+  html+='<div class="divider"></div>';
+  html+='<button class="view-btn '+(view==='month'?'active':'')+'" onclick="setView(\'month\')">'+esc(u.month)+'</button>';
+  html+='<button class="view-btn '+(view==='year'?'active':'')+'" onclick="setView(\'year\')">'+esc(u.year)+'</button>';
+  html+='</div>';
+  html+='</div></header>';
   html+='<div class="container">';
   // FILTER BAR
-  html+=`<div class="filter-bar"><h3>${esc(u.filterCategories)}</h3><div class="filter-chips">`;
-  Object.keys(CAT_STYLES).forEach(cat=>{
-    const cs=CAT_STYLES[cat];
-    const active=activeCategories.has(cat);
+  html+='<div class="filter-bar"><h3>'+esc(u.filterCategories)+'</h3><div class="filter-chips">';
+  Object.keys(CAT_STYLES).forEach(function(cat){
+    var cs=CAT_STYLES[cat];
+    var active=activeCategories.has(cat);
     if(active){
-      html+=`<button class="filter-chip active" onclick="toggleCat('${cat}')" style="background:${cs.bg};color:${cs.color};border-color:${cs.border}"><span class="chip-dot" style="background:${cs.dot}"></span>${esc(cl[cat])}</button>`;
+      html+='<button class="filter-chip active" onclick="toggleCat(\''+cat+'\')" style="background:'+cs.bg+';color:'+cs.color+';border-color:'+cs.border+'"><span class="chip-dot" style="background:'+cs.dot+'"></span>'+esc(cl[cat])+'</button>';
     }else{
-      html+=`<button class="filter-chip inactive" onclick="toggleCat('${cat}')"><span class="chip-dot" style="background:#cbd5e1"></span>${esc(cl[cat])}</button>`;
+      html+='<button class="filter-chip inactive" onclick="toggleCat(\''+cat+'\')"><span class="chip-dot" style="background:#cbd5e1"></span>'+esc(cl[cat])+'</button>';
     }
   });
   html+='</div></div>';
@@ -476,58 +560,58 @@ function render(){
   }
   html+='</div>'; // container
   // FOOTER
-  html+=`<footer class="footer"><p>✝️ ${esc(u.footerPrefix)} ${currentYear} ${esc(u.footerSuffix)}</p></footer>`;
+  html+='<footer class="footer"><p>✝️ '+esc(u.footerPrefix)+' '+currentYear+' '+esc(u.footerSuffix)+'</p></footer>';
   document.getElementById('app').innerHTML=html;
 }
 // =============================================
 // MONTH VIEW
 // =============================================
 function renderMonthView(holidays,hmap,u,mn,wd,cl){
-  const monthHolidays=holidays.filter(h=>h.date.getMonth()===currentMonth&&activeCategories.has(h.cat));
-  const calDays=getCalendarDays(currentYear,currentMonth);
-  let html='<div class="month-layout">';
+  var monthHolidays=holidays.filter(function(h){return h.date.getMonth()===currentMonth&&activeCategories.has(h.cat);});
+  var calDays=getCalendarDays(currentYear,currentMonth);
+  var html='<div class="month-layout">';
   // LEFT - CALENDAR
   html+='<div>';
   html+='<div class="cal-card">';
   // NAV
-  html+=`<div class="cal-nav">
-    <button class="nav-btn" onclick="prevMonth()">‹</button>
-    <div style="text-align:center">
-      <h2>${mn[currentMonth]} ${currentYear}</h2>
-      <div class="sub">${monthHolidays.length} ${monthHolidays.length!==1?u.holidays:u.holiday}</div>
-    </div>
-    <button class="nav-btn" onclick="nextMonth()">›</button>
-  </div>`;
+  html+='<div class="cal-nav">';
+  html+='<button class="nav-btn" onclick="prevMonth()">‹</button>';
+  html+='<div style="text-align:center">';
+  html+='<h2>'+mn[currentMonth]+' '+currentYear+'</h2>';
+  html+='<div class="sub">'+monthHolidays.length+' '+(monthHolidays.length!==1?u.holidays:u.holiday)+'</div>';
+  html+='</div>';
+  html+='<button class="nav-btn" onclick="nextMonth()">›</button>';
+  html+='</div>';
   // YEAR QUICK NAV
-  html+=`<div class="year-nav">
-    <button onclick="changeYear(${currentYear-1})">« ${currentYear-1}</button>
-    <span class="cur">${currentYear}</span>
-    <button onclick="changeYear(${currentYear+1})">${currentYear+1} »</button>
-  </div>`;
+  html+='<div class="year-nav">';
+  html+='<button onclick="changeYear('+(currentYear-1)+')">« '+(currentYear-1)+'</button>';
+  html+='<span class="cur">'+currentYear+'</span>';
+  html+='<button onclick="changeYear('+(currentYear+1)+')">'+(currentYear+1)+' »</button>';
+  html+='</div>';
   // GRID
   html+='<div class="cal-grid"><div class="weekday-row">';
-  wd.forEach(d=>{html+=`<div class="weekday-cell">${d}</div>`;});
+  wd.forEach(function(d){html+='<div class="weekday-cell">'+d+'</div>';});
   html+='</div><div class="days-grid">';
-  calDays.forEach((day,i)=>{
+  calDays.forEach(function(day,i){
     if(day===null){html+='<div class="day-cell empty"></div>';return;}
-    const key=dateKey(new Date(currentYear,currentMonth,day));
-    const dh=(hmap.get(key)||[]).filter(h=>activeCategories.has(h.cat));
-    const hasH=dh.length>0;
-    const td=isToday(day,currentMonth,currentYear);
-    const isSel=selectedHoliday&&selectedHoliday.date.getDate()===day&&selectedHoliday.date.getMonth()===currentMonth;
-    const isSun=(i+1)%7===0;
-    let cls='day-cell';
+    var key=dateKey(new Date(currentYear,currentMonth,day));
+    var dh=(hmap.get(key)||[]).filter(function(h){return activeCategories.has(h.cat);});
+    var hasH=dh.length>0;
+    var td=isToday(day,currentMonth,currentYear);
+    var isSel=selectedHoliday&&selectedHoliday.date.getDate()===day&&selectedHoliday.date.getMonth()===currentMonth;
+    var isSun=(i+1)%7===0;
+    var cls='day-cell';
     if(td)cls+=' today';
     if(isSel&&!td)cls+=' selected';
     if(hasH)cls+=' has-holiday';
     if(isSun&&!td&&!isSel)cls+=' sunday';
-    const onclick=hasH?`onclick="selectHoliday(${holidays.indexOf(dh[0])})"`:''
-    html+=`<button class="${cls}" ${onclick}><span>${day}</span>`;
+    var onclick=hasH?'onclick="selectHoliday('+holidays.indexOf(dh[0])+')"':'';
+    html+='<button class="'+cls+'" '+onclick+'><span>'+day+'</span>';
     if(hasH){
       html+='<div class="day-dots">';
-      dh.slice(0,3).forEach(h=>{
-        const dotColor=td?'rgba(255,255,255,.75)':CAT_STYLES[h.cat].dot;
-        html+=`<span class="day-dot" style="background:${dotColor}"></span>`;
+      dh.slice(0,3).forEach(function(h){
+        var dotColor=td?'rgba(255,255,255,.75)':CAT_STYLES[h.cat].dot;
+        html+='<span class="day-dot" style="background:'+dotColor+'"></span>';
       });
       html+='</div>';
     }
@@ -536,84 +620,89 @@ function renderMonthView(holidays,hmap,u,mn,wd,cl){
   html+='</div></div>'; // days-grid, cal-grid
   html+='</div>'; // cal-card
   // TODAY BUTTON
-  html+=`<div class="today-btn-wrap"><button class="today-btn" onclick="goToday()">${u.todayBtn} (${formatTodayDate(today)})</button></div>`;
+  html+='<div class="today-btn-wrap"><button class="today-btn" onclick="goToday()">'+u.todayBtn+' ('+formatTodayDate(today)+')</button></div>';
   html+='</div>'; // left
   // RIGHT - SIDEBAR
   html+='<div class="sidebar">';
   // SELECTED HOLIDAY DETAIL
   if(selectedHoliday){
-    const cs=CAT_STYLES[selectedHoliday.cat];
-    const diff=getDaysUntil(selectedHoliday.date);
-    html+=`<div class="detail-card" style="border-color:${cs.border}">
-      <div class="detail-head" style="background:${cs.bg}">
-        <div class="detail-head-top">
-          <span class="detail-emoji">${selectedHoliday.emoji}</span>
-          <button class="close-btn" onclick="deselectHoliday()">✕</button>
-        </div>
-        <h3>${esc(selectedHoliday.name[lang])}</h3>
-        <div class="date">${formatDate(selectedHoliday.date)}</div>
-        <span class="detail-badge" style="background:${cs.bg};color:${cs.color};border-color:${cs.border}">${esc(cl[selectedHoliday.cat])}</span>
-      </div>
-      <div class="detail-body">
-        <p>${esc(selectedHoliday.desc[lang])}</p>
-        ${countdownHTML(diff)}
-      </div>
-    </div>`;
+    var cs=CAT_STYLES[selectedHoliday.cat];
+    var diff=getDaysUntil(selectedHoliday.date);
+    html+='<div class="detail-card" style="border-color:'+cs.border+'">';
+    html+='<div class="detail-head" style="background:'+cs.bg+'">';
+    html+='<div class="detail-head-top">';
+    html+='<span class="detail-emoji">'+selectedHoliday.emoji+'</span>';
+    html+='<button class="close-btn" onclick="deselectHoliday()">✕</button>';
+    html+='</div>';
+    html+='<h3>'+esc(selectedHoliday.name[lang])+'</h3>';
+    html+='<div class="date">'+formatDate(selectedHoliday.date)+'</div>';
+    html+='<span class="detail-badge" style="background:'+cs.bg+';color:'+cs.color+';border-color:'+cs.border+'">'+esc(cl[selectedHoliday.cat])+'</span>';
+    html+='</div>';
+    html+='<div class="detail-body">';
+    html+='<p>'+esc(selectedHoliday.desc[lang])+'</p>';
+    html+=countdownHTML(diff);
+    html+='</div>';
+    html+='</div>';
   }
   // UPCOMING HOLIDAYS
   if(currentYear===today.getFullYear()){
-    const upcoming=holidays.filter(h=>h.date>=today&&activeCategories.has(h.cat)).slice(0,5);
-    html+=`<div class="list-card"><h3><span>📋</span> ${esc(u.nextHolidays)}</h3>`;
+    var upcoming=holidays.filter(function(h){return h.date>=today&&activeCategories.has(h.cat);}).slice(0,5);
+    html+='<div class="list-card"><h3><span>📋</span> '+esc(u.nextHolidays)+'</h3>';
     if(upcoming.length>0){
       html+='<div>';
-      upcoming.forEach(h=>{
-        const diff=getDaysUntil(h.date);
-        const idx=holidays.indexOf(h);
-        html+=`<button class="list-item" onclick="selectAndGo(${idx})">
-          <span class="list-item-emoji">${h.emoji}</span>
-          <div class="list-item-info">
-            <div class="list-item-name">${esc(h.name[lang])}</div>
-            <div class="list-item-date">${formatDayMonth(h.date)} · ${upcomingLabel(diff)}</div>
-          </div>
-          <span class="list-item-dot" style="background:${CAT_STYLES[h.cat].dot}"></span>
-        </button>`;
+      upcoming.forEach(function(h){
+        var diff2=getDaysUntil(h.date);
+        var idx=holidays.indexOf(h);
+        html+='<button class="list-item" onclick="selectAndGo('+idx+')">';
+        html+='<span class="list-item-emoji">'+h.emoji+'</span>';
+        html+='<div class="list-item-info">';
+        html+='<div class="list-item-name">'+esc(h.name[lang])+'</div>';
+        html+='<div class="list-item-date">'+formatDayMonth(h.date)+' · '+upcomingLabel(diff2)+'</div>';
+        html+='</div>';
+        html+='<span class="list-item-dot" style="background:'+CAT_STYLES[h.cat].dot+'"></span>';
+        html+='</button>';
       });
       html+='</div>';
     }else{
-      html+=`<div class="empty-state"><p>${esc(u.noMoreHolidays)}</p></div>`;
+      html+='<div class="empty-state"><p>'+esc(u.noMoreHolidays)+'</p></div>';
     }
     html+='</div>';
   }
   // MONTH HOLIDAY LIST
-  html+=`<div class="list-card"><h3><span>📌</span> ${esc(mn[currentMonth])}</h3>`;
+  html+='<div class="list-card"><h3><span>📌</span> '+esc(mn[currentMonth])+'</h3>';
   if(monthHolidays.length>0){
     html+='<div>';
-    monthHolidays.forEach(h=>{
-      const cs=CAT_STYLES[h.cat];
-      const idx=holidays.indexOf(h);
-      const isSel=selectedHoliday===h;
-      html+=`<button class="list-item${isSel?' active':''}" onclick="selectHoliday(${idx})" style="${isSel?`background:${cs.bg};border-color:${cs.border}`:''}">`
-      html+=`<span class="list-item-emoji">${h.emoji}</span>
-        <div class="list-item-info">
-          <div class="list-item-name">${esc(h.name[lang])}</div>
-          <div class="list-item-date">${formatShort(h.date)}</div>
-        </div>
-        <span class="list-item-dot" style="background:${cs.dot}"></span>
-      </button>`;
+    monthHolidays.forEach(function(h){
+      var cs2=CAT_STYLES[h.cat];
+      var idx=holidays.indexOf(h);
+      var isSel=selectedHoliday===h;
+      html+='<button class="list-item'+(isSel?' active':'')+'" onclick="selectHoliday('+idx+')" style="'+(isSel?'background:'+cs2.bg+';border-color:'+cs2.border:'')+'">';
+      html+='<span class="list-item-emoji">'+h.emoji+'</span>';
+      html+='<div class="list-item-info">';
+      html+='<div class="list-item-name">'+esc(h.name[lang])+'</div>';
+      html+='<div class="list-item-date">'+formatShort(h.date)+'</div>';
+      html+='</div>';
+      html+='<span class="list-item-dot" style="background:'+cs2.dot+'"></span>';
+      html+='</button>';
     });
     html+='</div>';
   }else{
-    html+=`<div class="empty-state"><div class="icon">📭</div><p>${esc(u.noHolidaysMonth)}</p><div class="sub">${esc(u.withActiveFilters)}</div></div>`;
+    html+='<div class="empty-state"><div class="icon">📭</div><p>'+esc(u.noHolidaysMonth)+'</p><div class="sub">'+esc(u.withActiveFilters)+'</div></div>';
   }
   html+='</div>';
   // INFO BOX
-  const easterDate=holidays.find(h=>h.name.de==='Ostersonntag');
-  const easterStr=easterDate?easterDate.date.toLocaleDateString(lang==='de'?'de-DE':'en-US',{day:'numeric',month:'long'}):'';
-  html+=`<div class="info-box">
-    <h3>ℹ️ ${esc(u.aboutTitle)}</h3>
-    <p>${esc(u.aboutText)}</p>
-    <div class="easter-info"><span>🥚</span><span>${esc(u.easter)} ${currentYear}: <strong>${easterStr}</strong></span></div>
-  </div>`;
+  var easterDate=holidays.find(function(h){return h.name.de==='Ostersonntag';});
+  var easterStr=easterDate?easterDate.date.toLocaleDateString(lang==='de'?'de-DE':'en-US',{day:'numeric',month:'long'}):'';
+  var orthoEasterDate=holidays.find(function(h){return h.name.de==='Orthodoxes Ostern (Pascha)';});
+  var orthoEasterStr=orthoEasterDate?orthoEasterDate.date.toLocaleDateString(lang==='de'?'de-DE':'en-US',{day:'numeric',month:'long'}):'';
+  html+='<div class="info-box">';
+  html+='<h3>ℹ️ '+esc(u.aboutTitle)+'</h3>';
+  html+='<p>'+esc(u.aboutText)+'</p>';
+  html+='<div class="easter-row">';
+  html+='<div class="easter-info"><span>🥚</span><span>'+esc(u.easter)+' '+currentYear+': <strong>'+easterStr+'</strong></span></div>';
+  html+='<div class="easter-info"><span>☦️</span><span>'+esc(u.orthodoxEaster)+' '+currentYear+': <strong>'+orthoEasterStr+'</strong></span></div>';
+  html+='</div>';
+  html+='</div>';
   html+='</div>'; // sidebar
   html+='</div>'; // month-layout
   return html;
@@ -622,33 +711,33 @@ function renderMonthView(holidays,hmap,u,mn,wd,cl){
 // YEAR VIEW
 // =============================================
 function renderYearView(holidays,hmap,u,mn,wd,cl){
-  let html='';
+  var html='';
   // YEAR HEADER
-  html+=`<div class="year-header">
-    <button class="nav-btn" onclick="changeYear(${currentYear-1})">‹</button>
-    <h2>${currentYear}</h2>
-    <button class="nav-btn" onclick="changeYear(${currentYear+1})">›</button>
-  </div>`;
+  html+='<div class="year-header">';
+  html+='<button class="nav-btn" onclick="changeYear('+(currentYear-1)+')">‹</button>';
+  html+='<h2>'+currentYear+'</h2>';
+  html+='<button class="nav-btn" onclick="changeYear('+(currentYear+1)+')">›</button>';
+  html+='</div>';
   // MINI MONTHS
   html+='<div class="year-grid">';
-  for(let m=0;m<12;m++){
-    const days=getCalendarDays(currentYear,m);
-    html+=`<div class="mini-month" onclick="goToMonth(${m})">
-      <h4>${mn[m]}</h4><div class="mini-grid">`;
-    wd.forEach(d=>{html+=`<div class="mini-wd">${d}</div>`;});
-    days.forEach(day=>{
+  for(var m=0;m<12;m++){
+    var days=getCalendarDays(currentYear,m);
+    html+='<div class="mini-month" onclick="goToMonth('+m+')">';
+    html+='<h4>'+mn[m]+'</h4><div class="mini-grid">';
+    wd.forEach(function(d){html+='<div class="mini-wd">'+d+'</div>';});
+    days.forEach(function(day){
       if(day===null){html+='<div class="mini-day"></div>';return;}
-      const key=dateKey(new Date(currentYear,m,day));
-      const dh=(hmap.get(key)||[]).filter(h=>activeCategories.has(h.cat));
-      const hasH=dh.length>0;
-      const td=isToday(day,m,currentYear);
-      let cls='mini-day';
+      var key=dateKey(new Date(currentYear,m,day));
+      var dh=(hmap.get(key)||[]).filter(function(h){return activeCategories.has(h.cat);});
+      var hasH=dh.length>0;
+      var td=isToday(day,m,currentYear);
+      var cls='mini-day';
       if(td)cls+=' m-today';
       if(hasH&&!td)cls+=' m-holiday';
-      html+=`<div class="${cls}">`;
+      html+='<div class="'+cls+'">';
       if(hasH&&!td){
-        html+=`<span style="color:${CAT_STYLES[dh[0].cat].color}">${day}</span>`;
-        html+=`<span class="mini-day-dot" style="background:${CAT_STYLES[dh[0].cat].dot}"></span>`;
+        html+='<span style="color:'+CAT_STYLES[dh[0].cat].color+'">'+day+'</span>';
+        html+='<span class="mini-day-dot" style="background:'+CAT_STYLES[dh[0].cat].dot+'"></span>';
       }else{
         html+=day;
       }
@@ -658,21 +747,21 @@ function renderYearView(holidays,hmap,u,mn,wd,cl){
   }
   html+='</div>';
   // ALL HOLIDAYS LIST
-  const filtered=holidays.filter(h=>activeCategories.has(h.cat));
-  html+=`<div class="all-holidays">
-    <h3>${esc(u.allHolidays)} ${currentYear}<span>(${filtered.length} ${u.entries})</span></h3>
-    <div class="all-list">`;
-  filtered.forEach((h,i)=>{
-    const cs=CAT_STYLES[h.cat];
-    const idx=holidays.indexOf(h);
-    html+=`<button class="list-item" onclick="showYearModal(${idx})">
-      <span class="list-item-emoji">${h.emoji}</span>
-      <div class="list-item-info">
-        <div class="list-item-name">${esc(h.name[lang])}</div>
-        <div class="list-item-date">${formatShort(h.date)}</div>
-      </div>
-      <span class="list-item-badge" style="background:${cs.bg};color:${cs.color}">${esc(cl[h.cat])}</span>
-    </button>`;
+  var filtered=holidays.filter(function(h){return activeCategories.has(h.cat);});
+  html+='<div class="all-holidays">';
+  html+='<h3>'+esc(u.allHolidays)+' '+currentYear+'<span>('+filtered.length+' '+u.entries+')</span></h3>';
+  html+='<div class="all-list">';
+  filtered.forEach(function(h){
+    var cs=CAT_STYLES[h.cat];
+    var idx=holidays.indexOf(h);
+    html+='<button class="list-item" onclick="showYearModal('+idx+')">';
+    html+='<span class="list-item-emoji">'+h.emoji+'</span>';
+    html+='<div class="list-item-info">';
+    html+='<div class="list-item-name">'+esc(h.name[lang])+'</div>';
+    html+='<div class="list-item-date">'+formatShort(h.date)+'</div>';
+    html+='</div>';
+    html+='<span class="list-item-badge" style="background:'+cs.bg+';color:'+cs.color+'">'+esc(cl[h.cat])+'</span>';
+    html+='</button>';
   });
   html+='</div></div>';
   return html;
@@ -680,7 +769,7 @@ function renderYearView(holidays,hmap,u,mn,wd,cl){
 // =============================================
 // ACTIONS
 // =============================================
-let cachedHolidays=null;
+var cachedHolidays=null;
 function getCachedHolidays(){
   if(!cachedHolidays||cachedHolidays._year!==currentYear){
     cachedHolidays=getHolidays(currentYear);
@@ -710,18 +799,18 @@ function goToday(){
 }
 function goToMonth(m){currentMonth=m;view='month';selectedHoliday=null;render();}
 function selectHoliday(idx){
-  const holidays=getHolidays(currentYear);
+  var holidays=getHolidays(currentYear);
   selectedHoliday=holidays[idx];render();
 }
 function deselectHoliday(){selectedHoliday=null;render();}
 function selectAndGo(idx){
-  const holidays=getHolidays(currentYear);
+  var holidays=getHolidays(currentYear);
   selectedHoliday=holidays[idx];
   currentMonth=selectedHoliday.date.getMonth();
   render();
 }
 function showYearModal(idx){
-  const holidays=getHolidays(currentYear);
+  var holidays=getHolidays(currentYear);
   showModal(holidays[idx]);
 }
 // INITIAL RENDER
